@@ -27,6 +27,30 @@ namespace cancrops.src
     [HarmonyPatch]
     public class harmPatch
     {
+        public static bool Prefix_BlockCrop_IsNotOnFarmland(BlockCrop __instance, IWorldAccessor world, BlockPos pos, ref bool __result)
+        {
+            if (world.BlockAccessor.GetBlock(pos.DownCopy(1)).FirstCodePart(0).Equals("canfarmland"))
+            {
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+        public static void Prefix_BlockAccessorBase_SetBlockInternal(BlockAccessorBase __instance, int blockId, BlockPos pos, IWorldChunk chunk, bool synchronize, bool relight, ItemStack byItemstack)
+        {
+            if(blockId != 2052)
+            {
+                return;
+            }
+            var c = 3;
+            c = 13;
+        }
+        public static void Prefix_BlockCrop_OnServerGameTick(BlockCrop __instance, IWorldAccessor world, BlockPos pos, object extra = null)
+        {
+
+            var c = 3;
+            c = 13;
+        }
         ////////  WATERING CAN
         public static bool Prefix_BlockWateringCan_OnHeldInteractStep(BlockWateringCan __instance, float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ICoreAPI ___api, ref bool __result)
         {

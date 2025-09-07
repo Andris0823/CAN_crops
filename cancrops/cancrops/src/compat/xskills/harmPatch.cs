@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
+using Vintagestory.Common;
 using Vintagestory.GameContent;
 using XLib.XLeveling;
 using XSkills;
@@ -18,14 +19,19 @@ namespace cancrops.src.compat.xskills
 {
     [HarmonyPatch]
     public class harmPatch
-    {
+    {       
         public static void Postfix_DoHarmonyPatch(ICoreAPI api)
         {
             var or = typeof(BlockWateringCan).GetMethod("OnHeldInteractStep");
             //var patches = Harmony.GetPatchInfo(or);
             var harmonyInstance = new Harmony("tmp.cancrops");
+            var f = Assembly.GetExecutingAssembly();
             harmonyInstance.Unpatch(or, HarmonyPatchType.Postfix);
-            harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
+            if (WatteringCanPatch.Prepare(or))
+            {
+                harmonyInstance.Patch(or, postfix: new HarmonyMethod(WatteringCanPatch.Postfix));
+            }
+            //harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
         }
         public static bool Prefix_XSkillsItemPlantableSeed_OnHeldInteractStart(XSkillsItemPlantableSeed __instance, ItemSlot itemslot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handHandling, ICoreAPI ___api)
         {

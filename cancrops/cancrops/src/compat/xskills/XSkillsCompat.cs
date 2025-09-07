@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using cancrops.src.compat.primitivesurvival;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,10 @@ namespace cancrops.src.compat.xskills
     {
         public static Harmony harmonyInstance;
         public const string harmonyID = "cancropsxskillscompat.Patches";
+        public override bool ShouldLoad(EnumAppSide forSide)
+        {
+            return cancrops.api.ModLoader.IsModEnabled("xlib");
+        }
         public override double ExecuteOrder()
         {
             return 0.5;
@@ -45,7 +50,11 @@ namespace cancrops.src.compat.xskills
             var or = typeof(BlockWateringCan).GetMethod("OnHeldInteractStep");
             //patches = Harmony.GetPatchInfo(or);
             harmonyInstance.Unpatch(or, HarmonyPatchType.Postfix);
-            harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
+            //harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
+            if(WatteringCanPatch.Prepare(or))
+            {
+                harmonyInstance.Patch(or, postfix: new HarmonyMethod(WatteringCanPatch.Postfix));
+            }           
         }
 
         public override void StartClientSide(ICoreClientAPI api)

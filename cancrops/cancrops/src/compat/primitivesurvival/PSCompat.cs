@@ -17,6 +17,14 @@ namespace cancrops.src.compat.primitivesurvival
     {
         public static Harmony harmonyInstance;
         public const string harmonyID = "cancropsprimitivesurvivalcompat.Patches";
+        public override double ExecuteOrder()
+        {
+            return 1.03;
+        }
+        public override bool ShouldLoad(EnumAppSide forSide)
+        {
+            return cancrops.api.ModLoader.IsModEnabled("primitivesurvival");
+        }
         public override void Start(ICoreAPI api)
         {
             harmonyInstance = new Harmony(harmonyID);

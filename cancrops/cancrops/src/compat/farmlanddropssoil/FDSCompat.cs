@@ -15,6 +15,14 @@ namespace cancrops.src.compat.farmlanddropssoil
     {
         public static Harmony harmonyInstance;
         public const string harmonyID = "cancropsfarmlanddropssoilcompat.Patches";
+        public override double ExecuteOrder()
+        {
+            return 1.03;
+        }
+        public override bool ShouldLoad(EnumAppSide forSide)
+        {
+            return cancrops.api.ModLoader.IsModEnabled("farmlanddropssoil");
+        }
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);

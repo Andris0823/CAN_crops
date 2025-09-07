@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -22,6 +23,7 @@ using Vintagestory.API.Common.CommandAbbr;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
+using Vintagestory.Common;
 using Vintagestory.GameContent;
 using weightmod.src;
 
@@ -35,7 +37,13 @@ namespace cancrops.src
         public static Config config;
         private static AgriPlants agriPlants;
         private static AgriMutations agriMutations;
-        private static AgriMutationHandler agriMutationHandler; 
+        private static AgriMutationHandler agriMutationHandler;
+        public static ICoreAPI api;
+        public override void StartPre(ICoreAPI api)
+        {
+            base.StartPre(api);
+            cancrops.api = api;
+        }
         public override void Start(ICoreAPI api)
         {
             base.Start(api);
@@ -73,6 +81,8 @@ namespace cancrops.src
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemHoe).GetMethod("DoTill"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_DoTill")));
 
             harmonyInstance.Patch(typeof(BlockWateringCan).GetMethod("OnHeldInteractStep"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockWateringCan_OnHeldInteractStep")));
+
+            harmonyInstance.Patch(typeof(BlockCrop).GetMethod("IsNotOnFarmland", BindingFlags.NonPublic | BindingFlags.Instance), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockCrop_IsNotOnFarmland")));
 
             loadConfig(api);
 
