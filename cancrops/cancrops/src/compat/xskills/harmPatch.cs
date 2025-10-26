@@ -107,7 +107,7 @@ namespace cancrops.src.compat.xskills
                 {
                     BlockPos blockPos = new BlockPos(num6, y, num7);
                     CANBlockEntityFarmland blockEntityFarmland = byEntity.World.BlockAccessor.GetBlockEntity(blockPos) as CANBlockEntityFarmland;
-                    if (blockEntityFarmland != null && blockEntityFarmland.TryPlant(block, itemslot.Itemstack, agriPlant))
+                    if (blockEntityFarmland != null && blockEntityFarmland.TryPlant(block, itemslot.Itemstack, agriPlant, itemslot, byEntity, blockSel))
                     {
                         handHandling = EnumHandHandling.PreventDefault;
                         if (assetLocation == null)

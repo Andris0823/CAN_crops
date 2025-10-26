@@ -218,7 +218,7 @@ namespace cancrops.src
                     player = byEntity.World.PlayerByUid(((EntityPlayer)byEntity).PlayerUID);
                 }
 
-                bool num = ((CANBlockEntityFarmland)blockEntity).TryPlant(block, itemslot.Itemstack, agriPlant);
+                bool num = ((CANBlockEntityFarmland)blockEntity).TryPlant(block, itemslot.Itemstack, agriPlant, itemslot, byEntity, blockSel);
                 if (num)
                 {
                     byEntity.World.PlaySoundAt(new AssetLocation("game:sounds/block/plant"), position.X, position.Y, position.Z, player);

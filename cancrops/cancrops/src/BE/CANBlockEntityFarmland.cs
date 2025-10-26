@@ -700,7 +700,7 @@ namespace cancrops.src.blockenities
          **************************GENOME RELATED**********************************
          **************************************************************************
          **************************************************************************/
-        public bool TryPlant(Block block, ItemStack itemStack, AgriPlant agriPlant)
+        public bool TryPlant(Block block, ItemStack itemStack, AgriPlant agriPlant, ItemSlot itemslot, EntityAgent byEntity, BlockSelection blockSel)
         {
             if (this.CanPlant() && block.CropProps != null && !this.isCrossCrop())
             {
@@ -718,7 +718,7 @@ namespace cancrops.src.blockenities
                 CropBehavior[] behaviors = block.CropProps.Behaviors;
                 for (int i = 0; i < behaviors.Length; i++)
                 {
-                    behaviors[i].OnPlanted(this.Api);
+                    behaviors[i].OnPlanted(this.Api, itemslot, byEntity, blockSel);
                 }
                 ReadNeighbours();
                 return true;
@@ -751,7 +751,7 @@ namespace cancrops.src.blockenities
             CropBehavior[] behaviors = block.CropProps.Behaviors;
             for (int i = 0; i < behaviors.Length; i++)
             {
-                behaviors[i].OnPlanted(this.Api);
+                behaviors[i].OnPlanted(this.Api, null, null, null);
             }
             this.cropSticksVariant = EnumCropSticksVariant.NONE;
             this.MarkDirty(true);
