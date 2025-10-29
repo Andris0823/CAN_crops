@@ -1,20 +1,23 @@
 ﻿[
-  {
-    "ingredientPattern": "S_S,S_S",
-    "ingredients": {
-      "S": {
-        "type": "item",
-        "code": "game:stick",
-        "quantity": 2
-      }
-    },
-    "name": "canseedsonion",
-    "width": 3,
-    "height": 2,
-    "output": {
-      "type": "item",
-      "code": "cancrops:selectionsticksitem",
-      "quantity": 4
+    {
+        "ingredientPattern": "P_P,P_P",
+        "ingredients": {
+            "P": {
+                "type": "item",
+                "code": "game:plank-*",
+                "name": "wood"
+            }
+        },
+        "name": "canselectionsticks",
+        "width": 3,
+        "height": 2,
+        "output": {
+            "type": "block",
+            "code": "cancrops:canselectionsticks",
+            "quantity": 4,
+            "attributes": {
+                "type": "{wood}"
+            }
+        }
     }
-  }
 ]

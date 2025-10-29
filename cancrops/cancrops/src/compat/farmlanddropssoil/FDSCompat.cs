@@ -27,8 +27,8 @@ namespace cancrops.src.compat.farmlanddropssoil
         {
             base.StartServerSide(api);
             harmonyInstance = new Harmony(harmonyID);
-            harmonyInstance.Patch(typeof(FarmlandDropsSoilBehavior).GetMethod("GetDrops"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_FarmlandDropsSoilBehavior_GetDrops")));
-            api.Event.ServerRunPhase(EnumServerRunPhase.RunGame, () => AddBehaviorAndSocketNumber(api));
+           // harmonyInstance.Patch(typeof(FarmlandDropsSoilBehavior).GetMethod("GetDrops"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_FarmlandDropsSoilBehavior_GetDrops")));
+            //api.Event.ServerRunPhase(EnumServerRunPhase.RunGame, () => AddBehaviorAndSocketNumber(api));
         }
         public void AddBehaviorAndSocketNumber(ICoreServerAPI api)
         {

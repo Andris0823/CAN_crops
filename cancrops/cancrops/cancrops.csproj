@@ -67,4 +67,10 @@
     </Content>
 </ItemGroup>
 
+<ItemGroup>
+  <Content Remove="..\resources\assets\cancrops\blocktypes\farmland.json" />
+  <Content Remove="..\resources\assets\cancrops\itemtypes\selection_sticks.json" />
+  <Content Remove="..\resources\assets\cancrops\patches\game_parsnip_patches.json" />
+</ItemGroup>
+
 </Project>

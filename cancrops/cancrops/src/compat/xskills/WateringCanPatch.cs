@@ -1,11 +1,5 @@
-﻿using cancrops.src.blockenities;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using HarmonyLib;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.GameContent;
@@ -46,7 +40,7 @@ namespace cancrops.src.compat.xskills
         [HarmonyPatch("OnHeldInteractStep")]
         public static void Postfix(bool __result, float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel)
         {
-            if (!__result)
+            /*if (!__result)
             {
                 return;
             }
@@ -115,7 +109,7 @@ namespace cancrops.src.compat.xskills
                         }
                     }
                 }
-            }
+            }*/
         }
     }
 }

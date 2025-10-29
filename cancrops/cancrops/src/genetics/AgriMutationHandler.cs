@@ -1,11 +1,8 @@
-﻿using cancrops.src.blockenities;
+﻿using cancrops.src.BE;
 using cancrops.src.implementations;
-using cancrops.src.utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace cancrops.src.genetics
 {
@@ -37,10 +34,10 @@ namespace cancrops.src.genetics
             combiner = new AgriCombineLogic();
         }
 
-        public bool handleCrossBreedTick(CANBlockEntityFarmland crop, IEnumerable<CANBlockEntityFarmland> neighbours, Random random)
+        public bool handleCrossBreedTick(CANBECrossSticks crossSticks, IEnumerable<CANBECrop> neighbours, Random random)
         {
             // select candidate parents from the neighbours
-            List<CANBlockEntityFarmland> candidates = this.getSelector().selectAndOrder(neighbours, random);
+            List<CANBECrop> candidates = this.getSelector().selectAndOrder(neighbours, random);
             // No candidates: do nothing
             if (candidates.Count() <= 0)
             {
@@ -49,13 +46,13 @@ namespace cancrops.src.genetics
             // Only one candidate: clone
             if (candidates.Count() == 1)
             {
-                return this.doClone(crop, candidates[0], random);
+                return this.doClone(crossSticks, candidates[0], random);
             }
             // More than one candidate passed, pick the two parents with the highest fertility stat:
-            return this.doCombine(crop, candidates[0], candidates[1], random);
+            return this.doCombine(crossSticks, candidates[0], candidates[1], random);
         }
 
-        protected bool doClone(CANBlockEntityFarmland target, CANBlockEntityFarmland parent, Random random)
+        protected bool doClone(CANBECrossSticks target, CANBECrop parent, Random random)
         {
             AgriPlant plant = parent.agriPlant;
             // Try spawning a clone if cloning is allowed
@@ -70,11 +67,11 @@ namespace cancrops.src.genetics
             // spreading failed
             return false;
         }
-        protected bool spawnChild(CANBlockEntityFarmland target, Genome genome, AgriPlant agriPlant)
+        protected bool spawnChild(CANBECrossSticks target, Genome genome, AgriPlant agriPlant)
         {
             return target.spawnGenome(genome, agriPlant);
         }
-        protected bool doCombine(CANBlockEntityFarmland target, CANBlockEntityFarmland a, CANBlockEntityFarmland b, Random random)
+        protected bool doCombine(CANBECrossSticks target, CANBECrop a, CANBECrop b, Random random)
         {
             Genome aGenome = a.Genome;
             Genome bGenome = b.Genome;

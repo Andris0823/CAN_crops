@@ -1,6 +1,7 @@
-﻿using cancrops.src.blockenities;
+﻿using cancrops.src.BE;
 using cancrops.src.blocks;
 using cancrops.src.commands;
+using cancrops.src.cropBehaviors;
 using cancrops.src.genetics;
 using cancrops.src.implementations;
 using cancrops.src.items;
@@ -10,20 +11,12 @@ using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Numerics;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.CommandAbbr;
-using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
-using Vintagestory.Common;
 using Vintagestory.GameContent;
 using weightmod.src;
 
@@ -46,23 +39,31 @@ namespace cancrops.src
         }
         public override void Start(ICoreAPI api)
         {
+            //Environment.SetEnvironmentVariable("CAIRO_DEBUG_DISPOSE", "1");
             base.Start(api);
             //Items
-            api.RegisterItemClass("CANItemSelectionSticks", typeof(CANItemSelectionSticks));
             api.RegisterItemClass("CANItemHandCultivator", typeof(CANItemHandCultivator));
 
             //Blocks
-            api.RegisterBlockClass("CANBlockFarmland", typeof(CANBlockFarmland));
-            //api.RegisterBlockClass("CANBlockSelectionSticks", typeof(CANBlockSelectionSticks));
+            api.RegisterBlockClass("CANBlockSelectionSticks", typeof(CANBlockSelectionSticks));
 
             //BE
-            api.RegisterBlockEntityClass("CANBlockEntityFarmland", typeof(CANBlockEntityFarmland));
+            api.RegisterBlockEntityClass("CANBECrop", typeof(CANBECrop));
+            api.RegisterBlockEntityClass("CANBECrossSticks", typeof(CANBECrossSticks));
+
+            //CROP BEHAVIOUR
+            api.RegisterCropBehavior("AgriPlantCropBehavior", typeof(AgriPlantCropBehavior));
 
             //Patches
             harmonyInstance = new Harmony(harmonyID);
 
+            harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockCrop).GetMethod("GetPlacedBlockInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_GetPlacedBlockInfo_New")));
+            harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("GetDrops"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockEntityFarmland_GetDrops")));
+            harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("GetHoursForNextStage"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockEntityFarmland_GetHoursForNextStage")));
+            harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockCrop).GetMethod("OnBlockInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockCrop_OnBlockInteractStart_New")));
+            
             //SEEDS
-            harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemPlantableSeed_OnHeldInteractStart")));
+            /*harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemPlantableSeed_OnHeldInteractStart")));
 
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockCrop).GetMethod("OnBlockBroken"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_OnBlockBroken")));
 
@@ -83,7 +84,7 @@ namespace cancrops.src
             harmonyInstance.Patch(typeof(BlockWateringCan).GetMethod("OnHeldInteractStep"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockWateringCan_OnHeldInteractStep")));
 
             harmonyInstance.Patch(typeof(BlockCrop).GetMethod("IsNotOnFarmland", BindingFlags.NonPublic | BindingFlags.Instance), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockCrop_IsNotOnFarmland")));
-
+            */
             loadConfig(api);
 
             InitColors();
@@ -135,15 +136,16 @@ namespace cancrops.src
                  .EndSub();
 
             harmonyInstance = new Harmony(harmonyID);
-            harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemHoe).GetMethod("DoTill"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ItemHoe_DoTill")));
+            //harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemHoe).GetMethod("DoTill"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ItemHoe_DoTill")));
 
-            harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("OnLoaded"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_OnLoaded")));
+            //harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("OnLoaded"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_OnLoaded")));
            
             agriPlants = new AgriPlants();
             agriMutations = new AgriMutations();
             agriMutationHandler = new AgriMutationHandler();
 
             PopulateRegistries(api);
+            harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_BlockEntityFarmland_Update_Cold")));
 
         }
         public void PopulateRegistries(ICoreServerAPI api)
@@ -235,8 +237,8 @@ namespace cancrops.src
             //SEEDS
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("GetHeldItemInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_ItemPlantableSeed_GetHeldItemInfo")));
 
-            Harmony.ReversePatch(typeof(Vintagestory.API.Common.Item).GetMethod("GetHeldItemInfo"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_Item_GetHeldItemInfo")));
-            Harmony.ReversePatch(typeof(Vintagestory.API.Common.RegistryObject).GetMethod("CodeWithPath"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_RegistryObject_CodeWithPath")));
+            //Harmony.ReversePatch(typeof(Vintagestory.API.Common.Item).GetMethod("GetHeldItemInfo"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_Item_GetHeldItemInfo")));
+            //Harmony.ReversePatch(typeof(Vintagestory.API.Common.RegistryObject).GetMethod("CodeWithPath"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_RegistryObject_CodeWithPath")));
         }
         public void InitColors()
         {
@@ -266,7 +268,7 @@ namespace cancrops.src
             try
             {
                 cancrops.config = api.LoadModConfig<Config>(this.Mod.Info.ModID + ".json");
-                api.Logger.Debug("[cancrops] " + this.Mod.Info.ModID + ".json" + " config loaded.");
+                api.Logger.VerboseDebug("[cancrops] " + this.Mod.Info.ModID + ".json" + " config loaded.");
                 if (cancrops.config != null)
                 {
                     return;
@@ -274,12 +276,12 @@ namespace cancrops.src
             }
             catch (Exception e)
             {
-                api.Logger.Debug("[cancrops] " + this.Mod.Info.ModID + ".json" + " config not found." + e);
+                api.Logger.VerboseDebug("[cancrops] " + this.Mod.Info.ModID + ".json" + " config not found." + e);
             }
 
             cancrops.config = new Config();
             api.StoreModConfig<Config>(cancrops.config, this.Mod.Info.ModID + ".json");
-            api.Logger.Debug("[cancrops] " + this.Mod.Info.ModID + ".json" + " config created and stored.");
+            api.Logger.VerboseDebug("[cancrops] " + this.Mod.Info.ModID + ".json" + " config created and stored.");
             return;
         }
         public override void Dispose()

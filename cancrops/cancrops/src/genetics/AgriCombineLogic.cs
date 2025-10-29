@@ -1,15 +1,12 @@
-﻿using cancrops.src.blockenities;
+﻿using cancrops.src.BE;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace cancrops.src.genetics
 {
     public class AgriCombineLogic
     {
-        public Genome combine(CANBlockEntityFarmland crop, Tuple<Genome, Genome> parents, Random random)
+        public Genome combine(CANBECrossSticks crop, Tuple<Genome, Genome> parents, Random random)
         {
             List<Gene> geneList = new List<Gene>();
             var firstGenome = parents.Item1.GetEnumerator();

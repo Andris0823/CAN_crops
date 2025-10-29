@@ -31,7 +31,7 @@ namespace cancrops.src.compat.xskills
             harmonyInstance = new Harmony(harmonyID);
 
             harmonyInstance.Patch(typeof(XSkillsItemPlantableSeed).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_XSkillsItemPlantableSeed_OnHeldInteractStart")));
-            Harmony.ReversePatch(typeof(ItemPlantableSeed).GetMethod("OnHeldInteractStart"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_ItemPlantableSeed_OnHeldInteractStart")));
+            //Harmony.ReversePatch(typeof(ItemPlantableSeed).GetMethod("OnHeldInteractStart"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_ItemPlantableSeed_OnHeldInteractStart")));
             /* var f = harmonyInstance.GetPatchedMethods();
              var c = 3;
              f = Harmony.GetAllPatchedMethods();
@@ -45,16 +45,16 @@ namespace cancrops.src.compat.xskills
         {
             harmonyInstance = new Harmony(harmonyID);
 
-            harmonyInstance.Patch(typeof(XSkillsItemHoe).GetMethod("DoTill"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_XSkillsItemHoe_DoTill")));
-            Harmony.ReversePatch(typeof(ItemHoe).GetMethod("DoTill"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_XSkillsItemHoe_DoTill")));
-            var or = typeof(BlockWateringCan).GetMethod("OnHeldInteractStep");
+            //harmonyInstance.Patch(typeof(XSkillsItemHoe).GetMethod("DoTill"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_XSkillsItemHoe_DoTill")));
+            //Harmony.ReversePatch(typeof(ItemHoe).GetMethod("DoTill"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_XSkillsItemHoe_DoTill")));
+            //var or = typeof(BlockWateringCan).GetMethod("OnHeldInteractStep");
             //patches = Harmony.GetPatchInfo(or);
-            harmonyInstance.Unpatch(or, HarmonyPatchType.Postfix);
+            //harmonyInstance.Unpatch(or, HarmonyPatchType.Postfix);
             //harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-            if(WatteringCanPatch.Prepare(or))
+            /*if(WatteringCanPatch.Prepare(or))
             {
                 harmonyInstance.Patch(or, postfix: new HarmonyMethod(WatteringCanPatch.Postfix));
-            }           
+            }  */         
         }
 
         public override void StartClientSide(ICoreClientAPI api)

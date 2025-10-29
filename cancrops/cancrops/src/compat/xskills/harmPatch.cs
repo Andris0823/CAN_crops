@@ -1,16 +1,10 @@
-﻿using cancrops.src.blockenities;
-using cancrops.src.implementations;
+﻿using cancrops.src.implementations;
 using HarmonyLib;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
-using Vintagestory.Common;
 using Vintagestory.GameContent;
 using XLib.XLeveling;
 using XSkills;
@@ -35,7 +29,8 @@ namespace cancrops.src.compat.xskills
         }
         public static bool Prefix_XSkillsItemPlantableSeed_OnHeldInteractStart(XSkillsItemPlantableSeed __instance, ItemSlot itemslot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handHandling, ICoreAPI ___api)
         {
-            if (blockSel == null)
+            return true;
+            /*if (blockSel == null)
             {
                 return false;
             }
@@ -157,7 +152,7 @@ namespace cancrops.src.compat.xskills
             {
                 byEntity.World.PlaySoundAt(assetLocation, (double)blockSel.Position.X, (double)blockSel.Position.Y, (double)blockSel.Position.Z, null, true, 32f, 1f);
             }
-            return false;
+            return false;*/
         }
         public static void Stub_ItemPlantableSeed_OnHeldInteractStart(object instance, ItemSlot itemslot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handHandling)
         {
@@ -167,7 +162,8 @@ namespace cancrops.src.compat.xskills
         }
         public static bool Prefix_XSkillsItemHoe_DoTill(XSkillsItemHoe __instance, float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ICoreAPI ___api)
         {
-            if (blockSel == null)
+            return true;
+           /* if (blockSel == null)
             {
                 return false;
             }
@@ -268,7 +264,7 @@ namespace cancrops.src.compat.xskills
             {
                 byEntity.World.PlaySoundAt(assetLocation, (double)blockSel.Position.X, (double)blockSel.Position.Y, (double)blockSel.Position.Z, null, true, 32f, 1f);
             }
-            return false;
+            return false;*/
         }
         public static void Stub_XSkillsItemHoe_DoTill(object __instance, float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
         {
@@ -278,7 +274,7 @@ namespace cancrops.src.compat.xskills
         }
         public static void LocalDoTill(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ICoreAPI ___api)
         {
-            BlockPos pos = blockSel.Position;
+            /*BlockPos pos = blockSel.Position;
             Block block = byEntity.World.BlockAccessor.GetBlock(pos);
             if (!block.Code.Path.StartsWith("soil"))
             {
@@ -307,7 +303,7 @@ namespace cancrops.src.compat.xskills
                 ((CANBlockEntityFarmland)be).OnCreatedFromSoil(block);
             }
             byEntity.World.BlockAccessor.MarkBlockDirty(pos);
-            return;
+            return;*/
         }
     }
 }

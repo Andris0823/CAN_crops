@@ -29,7 +29,7 @@ namespace cancrops.src.compat.primitivesurvival
         {
             harmonyInstance = new Harmony(harmonyID);
             //itemhoeextended
-            harmonyInstance.Patch(typeof(ItemHoeExtended).GetMethod("DoTill"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemHoeExtended_DoTill")));
+            /*harmonyInstance.Patch(typeof(ItemHoeExtended).GetMethod("DoTill"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemHoeExtended_DoTill")));
             harmonyInstance.Patch(typeof(ItemHoeExtended).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemHoeExtended_OnHeldInteractStart")));
             Harmony.ReversePatch(typeof(ItemHoe).GetMethod("OnHeldInteractStart"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_OnHeldInteractStart")));
             //befurrowedland
@@ -47,6 +47,7 @@ namespace cancrops.src.compat.primitivesurvival
             harmonyInstance.Patch(typeof(EntityEarthworm).GetMethod("OnGameTick"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_OnGameTick")));
             Harmony.ReversePatch(typeof(CollectibleObject).GetMethod("OnHeldInteractStart"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_Item_OnHeldInteractStart")));
             harmonyInstance.Patch(typeof(ItemEarthworm).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemEarthworm_OnHeldInteractStart")));
+        */
         }
 
         public override void StartServerSide(ICoreServerAPI api)

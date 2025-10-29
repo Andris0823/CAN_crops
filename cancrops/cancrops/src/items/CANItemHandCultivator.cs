@@ -1,13 +1,4 @@
-﻿using cancrops.src.blockenities;
-using cancrops.src.blocks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vintagestory.API.Common;
-using Vintagestory.API.MathTools;
-using Vintagestory.GameContent;
+﻿using Vintagestory.API.Common;
 
 namespace cancrops.src.items
 {
@@ -15,7 +6,7 @@ namespace cancrops.src.items
     {
         public override void OnHeldInteractStart(ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handling)
         {
-            if (blockSel == null)
+            /*if (blockSel == null)
             {
                 return;
             }
@@ -33,7 +24,7 @@ namespace cancrops.src.items
                     ((CANBlockEntityFarmland)be).OnCultivating(slot, byEntity);
                     handling = EnumHandHandling.PreventDefault;
                 }
-            }           
+            }      */     
         }
     }
 }

@@ -1,15 +1,13 @@
-﻿using cancrops.src.blockenities;
+﻿using cancrops.src.BE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace cancrops.src.genetics
 {
     public class ParentSelector
     {
-        public List<CANBlockEntityFarmland> selectAndOrder(IEnumerable<CANBlockEntityFarmland> neighbours, Random random)
+        public List<CANBECrop> selectAndOrder(IEnumerable<CANBECrop> neighbours, Random random)
         {
             /*foreach(var it in neighbours)
             {
@@ -26,7 +24,6 @@ namespace cancrops.src.genetics
             c = c.Where(x => this.rollFertility(x, random)).ToList();*/
             return neighbours
                     // Mature crops only
-                    .Where(x => x.hasPlant())
                     .Where(x => x.GetCropStageWithout() >= x.agriPlant.AllowSourceStage)
                     //.Where(x => x.HasRipeCrop())
                     // Fertile crops only
@@ -38,11 +35,11 @@ namespace cancrops.src.genetics
                     // Collect successful passes
                     .ToList();
         }
-        protected int sorter(CANBlockEntityFarmland crop)
+        protected int sorter(CANBECrop crop)
         {
             return cancrops.config.maxFertility - crop?.Genome.Fertility.Dominant.Value ?? 1;
         }
-        protected bool rollFertility(CANBlockEntityFarmland crop, Random random)
+        protected bool rollFertility(CANBECrop crop, Random random)
         {
             int tm = random.Next(cancrops.config.maxFertility);
             return true;
