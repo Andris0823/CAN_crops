@@ -1,7 +1,9 @@
 ﻿using cancrops.src.implementations;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -13,7 +15,25 @@ namespace cancrops.src.compat.xskills
 {
     [HarmonyPatch]
     public class harmPatch
-    {       
+    {
+        public static IEnumerable<CodeInstruction> Transpiler_XSkillsItemPlantableSeed_OnHeldInteractStart(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        {
+            bool found = false;
+            var codes = new List<CodeInstruction>(instructions);
+
+            for (int i = 0; i < codes.Count; i++)
+            {
+
+                if (!found &&
+                        codes[i].opcode == OpCodes.Newobj && codes[i + 1].opcode == OpCodes.Ldarg_2 && codes[i + 2].opcode == OpCodes.Ldarg_3 && codes[i - 1].opcode == OpCodes.Ldloc_2)
+                {
+                    yield return new CodeInstruction(OpCodes.Ldarg_1);
+                    found = true;
+                    continue;                
+                }
+                yield return codes[i];
+            }
+        }
         public static void Postfix_DoHarmonyPatch(ICoreAPI api)
         {
             var or = typeof(BlockWateringCan).GetMethod("OnHeldInteractStep");

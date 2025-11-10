@@ -30,7 +30,8 @@ namespace cancrops.src.compat.xskills
         {
             harmonyInstance = new Harmony(harmonyID);
 
-            harmonyInstance.Patch(typeof(XSkillsItemPlantableSeed).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_XSkillsItemPlantableSeed_OnHeldInteractStart")));
+            harmonyInstance.Patch(typeof(XSkillsItemPlantableSeed).GetMethod("OnHeldInteractStart"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_XSkillsItemPlantableSeed_OnHeldInteractStart")));
+            //harmonyInstance.Patch(typeof(XSkillsItemPlantableSeed).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_XSkillsItemPlantableSeed_OnHeldInteractStart")));
             //Harmony.ReversePatch(typeof(ItemPlantableSeed).GetMethod("OnHeldInteractStart"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_ItemPlantableSeed_OnHeldInteractStart")));
             /* var f = harmonyInstance.GetPatchedMethods();
              var c = 3;
