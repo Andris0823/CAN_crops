@@ -136,17 +136,13 @@ namespace cancrops.src
                  .EndSub();
 
             harmonyInstance = new Harmony(harmonyID);
-            //harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemHoe).GetMethod("DoTill"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ItemHoe_DoTill")));
-
-            //harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("OnLoaded"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_OnLoaded")));
-           
             agriPlants = new AgriPlants();
             agriMutations = new AgriMutations();
             agriMutationHandler = new AgriMutationHandler();
 
             PopulateRegistries(api);
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_BlockEntityFarmland_Update_Cold")));
-
+            harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_BlockEntityFarmland_Update_Heat")));
         }
         public void PopulateRegistries(ICoreServerAPI api)
         {           
@@ -236,9 +232,6 @@ namespace cancrops.src
 
             //SEEDS
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("GetHeldItemInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_ItemPlantableSeed_GetHeldItemInfo")));
-
-            //Harmony.ReversePatch(typeof(Vintagestory.API.Common.Item).GetMethod("GetHeldItemInfo"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_Item_GetHeldItemInfo")));
-            //Harmony.ReversePatch(typeof(Vintagestory.API.Common.RegistryObject).GetMethod("CodeWithPath"), new HarmonyMethod(typeof(harmPatch).GetMethod("Stub_RegistryObject_CodeWithPath")));
         }
         public void InitColors()
         {

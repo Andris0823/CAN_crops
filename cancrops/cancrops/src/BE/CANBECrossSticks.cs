@@ -8,6 +8,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
@@ -24,7 +25,10 @@ namespace cancrops.src.BE
         public override void Initialize(ICoreAPI api)
         {
             base.Initialize(api);
-            this.RegisterGameTickListener(new Action<float>(this.Update), 20000 + rand.Next(4000), 0);
+            if (api is ICoreServerAPI)
+            {
+                this.RegisterGameTickListener(new Action<float>(this.Update), 20000 + rand.Next(4000), 0);
+            }
             if(api.Side == EnumAppSide.Client)
             {
                 if (this.currentRightMesh == null)
@@ -63,21 +67,6 @@ namespace cancrops.src.BE
                 }
 
             }
-            /*Shape shape = null;
-            shape = Api.Assets.TryGet("cancrops:shapes/selection_sticks_2.json").ToObject<Shape>();
-            if (shape != null)
-            {
-                (Api as ICoreClientAPI).Tesselator.TesselateShape(this.Block, shape, out MeshData stickMesh);
-                if (fullMesh != null)
-                {
-                    fullMesh.AddMeshData(stickMesh);
-                }
-                else
-                {
-                    fullMesh = stickMesh;
-                }
-            }*/
-
             if (fullMesh != null)
             {
                 return fullMesh.Translate(new Vintagestory.API.MathTools.Vec3f(0, 0.9f, 0));
@@ -128,13 +117,16 @@ namespace cancrops.src.BE
                 BlockEntity blockEntityFarmland = this.Api.World.BlockAccessor.GetBlockEntity(tmpPos);
                 if (cancrops.sapi.World.BlockAccessor.GetBlockEntity(this.Pos.AddCopy(dir)) is CANBECrop cbc)
                 {
-                    neighbours.Add(cbc);
+                    if (cbc is not null)
+                    {
+                        neighbours.Add(cbc);
+                    }
                 }
             }
-            if (cancrops.GetAgriMutationHandler().handleCrossBreedTick(this, neighbours, rand))
+            if (neighbours.Count > 0 && cancrops.GetAgriMutationHandler().handleCrossBreedTick(this, neighbours, rand))
             {
                 //MinecraftForge.EVENT_BUS.post(new AgriCropEvent.Grow.Cross.Post(this));
-            }
+            }         
         }
         public bool spawnGenome(Genome genome, AgriPlant agriPlant)
         {
@@ -205,7 +197,9 @@ namespace cancrops.src.BE
             }
             string cacheKey = "crateMeshes" + block.FirstCodePart(0);
             Dictionary<string, MeshData> meshes = ObjectCacheUtil.GetOrCreate<Dictionary<string, MeshData>>(this.Api, cacheKey, () => new Dictionary<string, MeshData>());
-            CompositeShape cshape = block.Shape;
+            CompositeShape cshape = block.Shape.Clone();
+            //AssetLocation shapeloc = new AssetLocation("cancrops:shapes/block/selectionsticks.json");
+            //Shape shape = Vintagestory.API.Common.Shape.TryGet(capi, shapeloc);
             if (((cshape != null) ? cshape.Base : null) == null)
             {
                 return;

@@ -12,7 +12,7 @@
 		"generic": { "base": "cancrops:block/generic" }
 	},
 	"shape": {
-		"base": "cancrops:selection_sticks_2"
+		"base": "cancrops:block/selectionsticks"
 	},
 	"creativeinventoryStacks": [
 		{

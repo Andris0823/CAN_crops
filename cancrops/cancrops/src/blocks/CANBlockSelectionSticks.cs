@@ -68,7 +68,7 @@ namespace cancrops.src.blocks
             });
             if (!meshrefs.TryGetValue(key, out renderinfo.ModelRef))
             {
-                CompositeShape cshape = this.Shape;
+                CompositeShape cshape = this.Shape.Clone();
                 Vec3f rot = (this.ShapeInventory == null) ? null : new Vec3f(this.ShapeInventory.rotateX, this.ShapeInventory.rotateY, this.ShapeInventory.rotateZ);
 
                 MeshData mesh = this.GenMesh(capi, type, cshape, rot);
@@ -77,7 +77,7 @@ namespace cancrops.src.blocks
         }
         public MeshData GenMesh(ICoreClientAPI capi, string type, CompositeShape cshape, Vec3f rotation = null)
         {
-            Shape shape = this.GetShape(capi, type, cshape);
+            Shape shape = this.GetShape(capi, type, cshape).Clone();
             ITesselatorAPI tesselator = capi.Tesselator;
             this.tmpAssets["generic"] = new AssetLocation("game:block/wood/debarked/" + type + ".png");
             if (shape == null)
@@ -98,7 +98,7 @@ namespace cancrops.src.blocks
             ITesselatorAPI tesselator = capi.Tesselator;
             this.tmpTextureSource = tesselator.GetTextureSource(this, 0, true);
             AssetLocation shapeloc = cshape.Base.WithPathAppendixOnce(".json").WithPathPrefixOnce("shapes/");
-            Shape result = Vintagestory.API.Common.Shape.TryGet(capi, shapeloc);
+            Shape result = Vintagestory.API.Common.Shape.TryGet(capi, shapeloc).Clone();
             this.curType = type;
             return result;
         }

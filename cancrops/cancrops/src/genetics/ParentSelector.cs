@@ -22,6 +22,36 @@ namespace cancrops.src.genetics
             c = c.Where(x => (!cancrops.config.onlyFertileCropsCanSpread())).ToList();
             c = c.OrderByDescending(sorter).ToList();
             c = c.Where(x => this.rollFertility(x, random)).ToList();*/
+
+            /*var c = neighbours
+                    // Mature crops only
+                    .Where(x => x.GetCropStageWithout() >= 20).OrderByDescending(sorter).Where(x => this.rollFertility(x, random)).ToList();*/
+            List<CANBECrop> newList = new();
+            foreach(var it in neighbours)
+            {
+                if(it.agriPlant == null)
+                {
+                    continue;
+                }
+                if(it.GetCropStageWithout() >= it.agriPlant.AllowSourceStage)
+                {
+                    newList.Add(it);
+                }
+            }
+            if(newList.Count == 0)
+            {
+                return new List<CANBECrop>();
+            }
+            newList.OrderByDescending(sorter);
+            List<CANBECrop> newList2 = new();
+            foreach(var it in newList)
+            {
+                if (this.rollFertility(it, random))
+                {
+                    newList2.Add(it);
+                }
+            }
+            return newList2;
             return neighbours
                     // Mature crops only
                     .Where(x => x.GetCropStageWithout() >= x.agriPlant.AllowSourceStage)
