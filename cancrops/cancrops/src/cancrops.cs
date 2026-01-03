@@ -1,4 +1,7 @@
-﻿using cancrops.src.BE;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using cancrops.src.BE;
 using cancrops.src.blocks;
 using cancrops.src.commands;
 using cancrops.src.cropBehaviors;
@@ -9,16 +12,12 @@ using cancrops.src.templates;
 using cancrops.src.utility;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.CommandAbbr;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
-using weightmod.src;
 
 namespace cancrops.src
 {
@@ -32,6 +31,8 @@ namespace cancrops.src
         private static AgriMutations agriMutations;
         private static AgriMutationHandler agriMutationHandler;
         public static ICoreAPI api;
+        internal static IServerNetworkChannel serverChannel;
+        internal static IClientNetworkChannel clientChannel;
         public override void StartPre(ICoreAPI api)
         {
             base.StartPre(api);
@@ -43,6 +44,7 @@ namespace cancrops.src
             base.Start(api);
             //Items
             api.RegisterItemClass("CANItemHandCultivator", typeof(CANItemHandCultivator));
+            api.RegisterItemClass("CANItemAntiWeed", typeof(CANItemAntiWeed));
 
             //Blocks
             api.RegisterBlockClass("CANBlockSelectionSticks", typeof(CANBlockSelectionSticks));
@@ -61,7 +63,8 @@ namespace cancrops.src
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("GetDrops"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockEntityFarmland_GetDrops")));
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("GetHoursForNextStage"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockEntityFarmland_GetHoursForNextStage")));
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockCrop).GetMethod("OnBlockInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_BlockCrop_OnBlockInteractStart_New")));
-            
+            harmonyInstance.Patch(typeof(CollectibleObject).GetMethod("OnCreatedByCrafting"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemPlantableSeed_OnCreatedByCrafting")));
+
             //SEEDS
             /*harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("OnHeldInteractStart"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_ItemPlantableSeed_OnHeldInteractStart")));
 
@@ -143,6 +146,26 @@ namespace cancrops.src
             PopulateRegistries(api);
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_BlockEntityFarmland_Update_Cold")));
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_BlockEntityFarmland_Update_Heat")));
+            harmonyInstance.Patch(typeof(Vintagestory.GameContent.BlockEntityFarmland).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_BlockEntityFarmland_Update")));
+            serverChannel = sapi.Network.RegisterChannel("cancrops");
+            serverChannel.RegisterMessageType(typeof(ConfigUpdateValuesPacket));
+            api.Event.PlayerJoin += SendUpdatedConfigValues;
+        }
+        public static void SendUpdatedConfigValues(IServerPlayer player)
+        {
+            cancrops.serverChannel.SendPacket(
+                   new ConfigUpdateValuesPacket()
+                   {
+                       coldResistanceByStat = cancrops.config.coldResistanceByStat,
+                       heatResistanceByStat = cancrops.config.heatResistanceByStat,
+                       hiddenGain = cancrops.config.hiddenGain,
+                       hiddenGrowth = cancrops.config.hiddenGrowth,
+                       hiddenStrength = cancrops.config.hiddenStrength,
+                       hiddenResistance = cancrops.config.hiddenResistance,
+                       hiddenFertility = cancrops.config.hiddenFertility,
+                       hiddenMutativity = cancrops.config.hiddenMutativity
+                   }
+                   , player);
         }
         public void PopulateRegistries(ICoreServerAPI api)
         {           
@@ -232,6 +255,26 @@ namespace cancrops.src
 
             //SEEDS
             harmonyInstance.Patch(typeof(Vintagestory.GameContent.ItemPlantableSeed).GetMethod("GetHeldItemInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_ItemPlantableSeed_GetHeldItemInfo")));
+            clientChannel = api.Network.RegisterChannel("cancrops");
+            clientChannel.RegisterMessageType(typeof(ConfigUpdateValuesPacket));
+            clientChannel.SetMessageHandler<ConfigUpdateValuesPacket>((packet) =>
+            {
+                cancrops.config.coldResistanceByStat = packet.coldResistanceByStat;
+                cancrops.config.heatResistanceByStat = packet.heatResistanceByStat;
+                cancrops.config.hiddenGain = packet.hiddenGain;
+                cancrops.config.hiddenGrowth = packet.hiddenGrowth;
+                cancrops.config.hiddenStrength = packet.hiddenStrength;
+                cancrops.config.hiddenResistance = packet.hiddenResistance;
+                cancrops.config.hiddenFertility = packet.hiddenFertility;
+                cancrops.config.hiddenMutativity = packet.hiddenMutativity;
+                cancrops.config.hidden_genes["gain"] = cancrops.config.hiddenGain;              
+                cancrops.config.hidden_genes["growth"] = cancrops.config.hiddenGrowth;             
+                cancrops.config.hidden_genes["strength"] = cancrops.config.hiddenStrength;                
+                cancrops.config.hidden_genes["resistance"] = cancrops.config.hiddenResistance;               
+                cancrops.config.hidden_genes["fertility"] = cancrops.config.hiddenFertility;               
+                cancrops.config.hidden_genes["mutativity"] = cancrops.config.hiddenMutativity;
+                
+            });
         }
         public void InitColors()
         {
@@ -264,6 +307,7 @@ namespace cancrops.src
                 api.Logger.VerboseDebug("[cancrops] " + this.Mod.Info.ModID + ".json" + " config loaded.");
                 if (cancrops.config != null)
                 {
+                    api.StoreModConfig<Config>(cancrops.config, this.Mod.Info.ModID + ".json");
                     return;
                 }
             }

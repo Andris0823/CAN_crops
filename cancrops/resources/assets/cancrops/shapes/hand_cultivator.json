@@ -8,7 +8,7 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"blade": "/Users/koeni/Desktop/tex/blade",
+		"blade": "game:item/tool/material/handle",
 		"generic": "game:item/tool/material/handle"
 	},
 	"elements": [

@@ -12,17 +12,17 @@ namespace cancrops.src.genetics
     {
         public static Dictionary<string, bool> genes = new Dictionary<string, bool>{ 
             //grow speed
-                {"gain", true}, 
+                {"gain", cancrops.config.hiddenGain}, 
             //amount of drop
-                {"growth", true},
+                {"growth", cancrops.config.hiddenGrowth},
             //resist against requirements
-                {"strength", true},
+                {"strength", cancrops.config.hiddenStrength},
             //against weeds
-                {"resistance", true},  
+                {"resistance", cancrops.config.hiddenResistance},  
             //chance to be selected from parents
-                {"fertility", false},
+                {"fertility", cancrops.config.hiddenFertility},
             //
-                {"mutativity", false}
+                {"mutativity", cancrops.config.hiddenMutativity}
         };        
         public Gene Gain { get; set; }
         public Gene Growth { get; set; }
@@ -32,12 +32,12 @@ namespace cancrops.src.genetics
         public Gene Mutativity { get; set; }
         public Genome()
         {
-            Gain = new Gene("gain", new Allele(cancrops.config.minGain), new Allele(cancrops.config.minGain), cancrops.config.hiddenGain);
-            Growth = new Gene("growth", new Allele(cancrops.config.minGrowth), new Allele(cancrops.config.minGrowth), cancrops.config.hiddenGrowth);
-            Strength = new Gene("strength", new Allele(cancrops.config.minStrength), new Allele(cancrops.config.minStrength), cancrops.config.hiddenStrength);
-            Resistance = new Gene("resistance", new Allele(cancrops.config.minResistance), new Allele(cancrops.config.minResistance), cancrops.config.hiddenResistance);
-            Fertility = new Gene("fertility", new Allele(cancrops.config.minFertility), new Allele(cancrops.config.minFertility), cancrops.config.hiddenFertility);
-            Mutativity = new Gene("mutativity", new Allele(cancrops.config.minMutativity), new Allele(cancrops.config.minMutativity), cancrops.config.hiddenMutativity);
+            Gain = new Gene("gain", new Allele(cancrops.config.minGain), new Allele(cancrops.config.minGain));
+            Growth = new Gene("growth", new Allele(cancrops.config.minGrowth), new Allele(cancrops.config.minGrowth));
+            Strength = new Gene("strength", new Allele(cancrops.config.minStrength), new Allele(cancrops.config.minStrength));
+            Resistance = new Gene("resistance", new Allele(cancrops.config.minResistance), new Allele(cancrops.config.minResistance));
+            Fertility = new Gene("fertility", new Allele(cancrops.config.minFertility), new Allele(cancrops.config.minFertility));
+            Mutativity = new Gene("mutativity", new Allele(cancrops.config.minMutativity), new Allele(cancrops.config.minMutativity));
         }
         public Genome(Gene gain, Gene growth, Gene strength, Gene resistance, Gene fertility, Gene mutativity)
         {
@@ -101,6 +101,40 @@ namespace cancrops.src.genetics
             }
             return null;
         }
+        public bool SetGene(string name, Gene value)
+        {
+            if (name.Equals("gain"))
+            {
+                Gain = value;
+                return true;
+            }
+            else if (name.Equals("growth"))
+            {
+                Growth = value;
+                return true;
+            }
+            else if (name.Equals("strength"))
+            {
+                Strength = value;
+                return true;
+            }
+            else if (name.Equals("resistance"))
+            {
+                Resistance = value;
+                return true;
+            }
+            else if (name.Equals("fertility"))
+            {
+                Fertility = value;
+                return true;
+            }
+            else if (name.Equals("mutativity"))
+            {
+                Mutativity = value;
+                return true;
+            }
+            return false;
+        }
         public ITreeAttribute AsTreeAttribute()
         {
             ITreeAttribute newTree = new TreeAttribute();
@@ -110,7 +144,7 @@ namespace cancrops.src.genetics
                 geneTree.SetString("name", gene.StatName);
                 geneTree.SetInt("D", gene.Dominant.Value);
                 geneTree.SetInt("R", gene.Recessive.Value);
-                geneTree.SetBool("H", gene.Hidden);
+                //geneTree.SetBool("H", gene.Hidden);
                 newTree[gene.StatName] = geneTree;
             }
             return newTree;
@@ -126,7 +160,7 @@ namespace cancrops.src.genetics
             {
                 ITreeAttribute geneTree = tree.GetTreeAttribute(geneName);
                 
-                newGenes.Add(new Gene(geneName, new Allele(geneTree.GetInt("D")), new Allele(geneTree.GetInt("R")), geneTree.GetBool("H")));
+                newGenes.Add(new Gene(geneName, new Allele(geneTree.GetInt("D")), new Allele(geneTree.GetInt("R"))));
             }
             return new Genome(newGenes);
         }

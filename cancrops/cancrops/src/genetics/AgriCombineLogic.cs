@@ -36,8 +36,7 @@ namespace cancrops.src.genetics
             return
                    new Gene(gene.StatName,
                             this.pickRandomAllele(parents.Item1.GetGeneByName(gene.StatName), parents.Item1.Mutativity.Dominant.Value, rand),
-                            this.pickRandomAllele(parents.Item2.GetGeneByName(gene.StatName), parents.Item2.Mutativity.Dominant.Value, rand),
-                            gene.Hidden);
+                            this.pickRandomAllele(parents.Item2.GetGeneByName(gene.StatName), parents.Item2.Mutativity.Dominant.Value, rand));
         }
         protected Allele pickRandomAllele(Gene pair, int statValue, Random random)
         {

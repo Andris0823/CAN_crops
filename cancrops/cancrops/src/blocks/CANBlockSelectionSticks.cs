@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using cancrops.src.BE;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
@@ -116,6 +118,13 @@ namespace cancrops.src.blocks
             }
             return stack;
         }
+        public override ItemStack[] GetDrops(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+        {
+            return new ItemStack[]
+            {
+                this.OnPickBlock(world, pos)
+            };
+        }
         public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
         {
             base.OnBlockBroken(world, pos, byPlayer, dropQuantityMultiplier);
@@ -138,6 +147,19 @@ namespace cancrops.src.blocks
                 }
             }
             return false;
+        }
+        public override void OnEntityCollide(IWorldAccessor world, Entity entity, BlockPos pos, BlockFacing facing, Vec3d collideSpeed, bool isImpact)
+        {
+            base.OnEntityCollide(world, entity, pos, facing, collideSpeed, isImpact);
+            if(entity is EntityPlayer plr && plr.Controls.Sneak)
+            {
+                return;
+            }
+            if (Math.Abs(collideSpeed.Y) > 0.4)
+            {
+                world.BlockAccessor.SetBlock(0, pos);
+                world.PlaySoundAt(new AssetLocation("game:sounds/effect/toolbreak"), entity);
+            }
         }
     }
 }

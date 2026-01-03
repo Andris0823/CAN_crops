@@ -30,13 +30,13 @@ namespace cancrops.src.utility
                 return false;
             }
             //find how to check for block of kind in area
-            bool conditionSatisfied = true;
+            bool conditionSatisfied = false;
             Dictionary<int, int> neccessaryBlocksCounters = new Dictionary<int, int>();
             foreach (var condition in requirements.Conditions) 
             {
-                cancrops.sapi.World.BlockAccessor.SearchBlocks(beCrop.Pos.AddCopy(condition.MinPos.X, condition.MinPos.Y, condition.MinPos.Z), beCrop.Pos.AddCopy(condition.MaxPos.X, condition.MaxPos.Y, condition.MaxPos.Z), delegate (Block block, BlockPos pos)
+                cancrops.sapi.World.BlockAccessor.SearchBlocks(beCrop.Pos.AddCopy(condition.MinPos.X, condition.MinPos.Y + 1, condition.MinPos.Z), beCrop.Pos.AddCopy(condition.MaxPos.X, condition.MaxPos.Y, condition.MaxPos.Z), delegate (Block block, BlockPos pos)
                 {
-                    if (block == condition.NecessaryBlock)
+                    if (block.Id == condition.NecessaryBlock.Id)
                     {
                         if(condition.Amount > 1)
                         {
@@ -56,6 +56,11 @@ namespace cancrops.src.utility
                             {
                                 neccessaryBlocksCounters[condition.NecessaryBlock.Id] = 1;
                             }
+                        }
+                        else
+                        {
+                            conditionSatisfied = true;
+                            return false;
                         }
                     }
                     return true;

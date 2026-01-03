@@ -10,6 +10,7 @@ using cancrops.src.implementations;
 using cancrops.src.utility;
 using PrimitiveSurvival.ModSystem;
 using Vintagestory.API.Common;
+using Vintagestory.GameContent;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace cancrops.src.cropBehaviors
@@ -53,9 +54,19 @@ namespace cancrops.src.cropBehaviors
         }
         public override bool TryGrowCrop(ICoreAPI api, IFarmlandBlockEntity farmland, double currentTotalHours, int newGrowthStage, ref EnumHandling handling)
         {
+            //(farmland as BlockEntityFarmland)
             if (api.World.BlockAccessor.GetBlockEntity<CANBECrop>(farmland.Pos.UpCopy()) is CANBECrop beCrop)
             {
-                return AgriPlantRequirmentChecker.CheckAgriPlantRequirements(beCrop);
+                if(beCrop.weedStage != WeedStage.NONE)
+                {
+                    return false;
+                }
+                bool res = AgriPlantRequirmentChecker.CheckAgriPlantRequirements(beCrop);
+                if(!res)
+                {
+                    handling = EnumHandling.PreventDefault;                   
+                }
+                return res;
             }
             return false;
         }

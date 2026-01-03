@@ -1,38 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vintagestory.API.Datastructures;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Collections.Generic;
 
-namespace weightmod.src
+namespace cancrops.src
 {
-
-    //
-    //https://github.com/DArkHekRoMaNT
-    //
     public class Config
     {
 
         // stats
-        public int minGain = 1;
+        public int minGain = 0;
         public int maxGain = 10;
         public bool hiddenGain = false;
-        public int minGrowth = 1;
+        public int minGrowth = 0;
         public int maxGrowth = 10;
         public bool hiddenGrowth = false;
-        public int minStrength = 1;
+        public int minStrength = 0;
         public int maxStrength = 10;
         public bool hiddenStrength = true;
-        public int minResistance = 1;
+        public int minResistance = 0;
         public int maxResistance = 10;
         public bool hiddenResistance = false;
-        public int minFertility = 1;
+        public int minFertility = 0;
         public int maxFertility = 10;
         public bool hiddenFertility = true;
-        public int minMutativity = 1;
+        public int minMutativity = 0;
         public int maxMutativity = 10;
         public bool hiddenMutativity = true;
         public bool cloneMutations = true;
@@ -50,19 +39,37 @@ namespace weightmod.src
             { "resistance", "steelblue" },
             { "strength", "Tomato" },
             { "resistance-cold",  "SlateBlue" },
-            { "resistance-heat",  "LightSalmon" }
+            { "resistance-heat",  "LightSalmon" },
+            { "fertility", "SeaGreen"},
+            { "mutativity", "Cyan"}
 
         };
         public Dictionary<string, string> gene_color_int = new Dictionary<string, string>();
         public int weedMinimumSpreadStage = 1;
         public double weedResistanceByStat = 0.05;
+        public double weedChanceForCrossSticks = 0.15;
+        public double weedStageBonusAdditionForSpawnChance = 0.05;
+        public int weedPropagationDepth = 4;
         public Dictionary<int, double> weedSpreadChancePerStage = new Dictionary<int, double>{
             { 0, 0.1 },
             { 1, 0.3 },
             { 2, 0.5 }
         };
         public bool weedSpreadingActivated = true;
-        public double weedAppearanceChance = 0.06;
-
+        public double weedAppearanceChance = 0.15;
+        public Dictionary<string, bool> hidden_genes = new();
+        public string seedMergeStrategy = "tolower";
+        public HashSet<string> seedMergeStrategies = ["tolower", "mean"];
+        public Dictionary<string, double> weedBlockCodes = new() {
+			{ "tallgrass-veryshort-free", 0.95 },
+			{  "tallgrass-short-free",  0.85 },
+			{  "tallgrass-mediumshort-free",  0.78 },
+			{  "tallgrass-medium-free",  0.67 },
+			{  "flower-horsetail-free",  0.2 },
+		};
+        public double minHoursBetweenWeedStages = 3;
+        public Dictionary<string, int> weedProtectionTicks = new() {
+           {"canantiweed-temporal", 1000 }
+        };
     }
 }

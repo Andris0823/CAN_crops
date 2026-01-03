@@ -1,0 +1,45 @@
+﻿[
+    {
+        "enabled": false,
+        "ingredientPattern": "GP",
+        "ingredients": {
+            "G": {
+                "type": "block",
+                "code": "game:glass-plain"
+            },
+            "P": {
+                "type": "item",
+                "code": "em:powdered-metal-temporal"
+            }
+        },
+        "name": "canselectionsticks",
+        "width": 2,
+        "height": 1,
+        "output": {
+            "type": "item",
+            "code": "cancrops:canantiweed-temporal",
+            "quantity": 1
+        }
+    },
+    {
+        "ingredientPattern": "GP",
+        "ingredients": {
+            "G": {
+                "type": "block",
+                "code": "game:glass-plain"
+            },
+            "P": {
+                "type": "item",
+                "code": "game:gear-temporal"
+            }
+        },
+        "name": "canselectionsticks",
+        "width": 2,
+        "height": 1,
+        "output": {
+            "type": "item",
+            "code": "cancrops:canantiweed-temporal",
+            "quantity": 1
+        }
+    }
+]

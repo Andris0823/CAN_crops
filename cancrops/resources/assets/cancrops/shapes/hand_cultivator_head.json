@@ -8,7 +8,7 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"blade": "/Users/koeni/Desktop/tex/blade"
+		"blade": "game:block/metal/ingot/iron"
 	},
 	"elements": [
 		{

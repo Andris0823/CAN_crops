@@ -4,6 +4,7 @@ using cancrops.src.utility;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using Vintagestory.API.Common;
@@ -17,6 +18,29 @@ namespace cancrops.src
     [HarmonyPatch]
     public class harmPatch
     {
+        public static bool Prefix_ItemPlantableSeed_OnCreatedByCrafting(CollectibleObject __instance, ItemSlot[] allInputslots, ItemSlot outputSlot, GridRecipe byRecipe)
+        {
+            if(__instance is not ItemPlantableSeed)
+            {
+                return true;
+            }
+            bool skip = true;
+            var slots = new List<Genome>();
+            foreach (var it in allInputslots)
+            {
+                if (!it.Empty && it.Itemstack.Attributes != null && it.Itemstack.Attributes.HasAttribute("genome"))
+                {
+                    slots.Add(CommonUtils.GetSeedGenomeFromAttribute(it.Itemstack));
+                }
+            }
+            if(slots.Count < 2)
+            {
+                return skip;
+            }
+            CommonUtils.MergeGenomes(slots, out Genome genome);
+            CommonUtils.ApplyGenomeTreeToItemstack(genome, outputSlot.Itemstack);
+            return skip;
+        }
         public static void Prefix_GetPlacedBlockInfo_New(Vintagestory.GameContent.BlockCrop __instance, IWorldAccessor world, BlockPos pos, IPlayer forPlayer, ref string __result)
         {
             if (world.BlockAccessor.GetBlockEntity<CANBECrop>(pos) is CANBECrop beCrop)
@@ -147,6 +171,17 @@ namespace cancrops.src
             {
                 if (beCrop.Genome != null)
                 {
+                    /*var field = typeof(BlockEntityFarmland).GetField(
+                        "totalHoursLastUpdate",
+                        BindingFlags.Instance | BindingFlags.NonPublic
+                    );
+                    double c2 = (double)(field.GetValue(farmland));
+                    var conds = farmland.Api.World.BlockAccessor.GetClimateAt(farmland.Pos, 
+                        EnumGetClimateMode.ForSuppliedDate_TemperatureRainfallOnly, c2 / farmland.Api.World.Calendar.HoursPerDay);
+                    if(conds.Temperature > 40)
+                    {
+                        var c = 3;
+                    }*/
                     return cancrops.config.heatResistanceByStat * beCrop.Genome.Resistance.Dominant.Value;
                 }
             }
@@ -232,12 +267,16 @@ namespace cancrops.src
                 ITreeAttribute genomeTree = inSlot.Itemstack.Attributes.GetTreeAttribute("genome");
                 foreach (var gene in Genome.genes)
                 {
-                    if (gene.Value)
+                    ITreeAttribute geneTree = genomeTree.GetTreeAttribute(gene.Key);
+                    if(cancrops.config.hidden_genes.TryGetValue(gene.Key, out bool isHidden))
                     {
-                        ITreeAttribute geneTree = genomeTree.GetTreeAttribute(gene.Key);
-                        dsc.Append("<font color=\"" + cancrops.config.gene_color_int[gene.Key] + "\">" + Lang.Get("cancrops:" + gene.Key + "-stat") + "</font>");
-                        dsc.Append(string.Format(": {0} ", geneTree.GetInt("D")));
+                        if (isHidden)
+                        {
+                            continue;
+                        }
                     }
+                    dsc.Append("<font color=\"" + cancrops.config.gene_color_int[gene.Key] + "\">" + Lang.Get("cancrops:" + gene.Key + "-stat") + "</font>");
+                    dsc.Append(string.Format(": {0} ", geneTree.GetInt("D")));              
                 }
                 ITreeAttribute resistanceTree = genomeTree.GetTreeAttribute("resistance");
                 if(resistanceTree != null)
@@ -264,6 +303,23 @@ namespace cancrops.src
             }
             
         }
+        public static IEnumerable<CodeInstruction> Transpiler_BlockEntityFarmland_Update(IEnumerable<CodeInstruction> instructions)
+        {
+            bool found = false;
+            var codes = new List<CodeInstruction>(instructions);
 
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (!found &&
+                    codes[i].opcode == OpCodes.Conv_R8 && codes[i + 1].opcode == OpCodes.Stloc_S && codes[i + 2].opcode == OpCodes.Ldarg_0 && codes[i - 1].opcode == OpCodes.Call)
+                {
+                    yield return new CodeInstruction(OpCodes.Pop);
+                    yield return new CodeInstruction(OpCodes.Ldc_I4_1);
+                    found = true;
+                    continue;
+                }
+                yield return codes[i];
+            }
+        }
     }
 }

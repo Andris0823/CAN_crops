@@ -1,33 +1,90 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using cancrops.src.genetics;
 using cancrops.src.implementations;
-using cancrops.src.utility;
+using cancrops.src.items;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
-using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace cancrops.src.BE
 {
-    public class CANBECrop: BlockEntity
+    public class CANBECrop: BlockEntity, ITexPositionSource
     {
         public Genome Genome;
         public AgriPlant agriPlant;
-        private WeedStage weedStage = WeedStage.NONE;
+        public WeedStage weedStage = WeedStage.NONE;
         private ICoreClientAPI capi;
         public static Random rand = new Random();
+        private MeshData ownMesh;
+        public Dictionary<string, AssetLocation> tmpAssets = new Dictionary<string, AssetLocation>();
+        public Size2i AtlasSize => this.capi.BlockTextureAtlas.Size;
+        public TextureAtlasPosition this[string textureCode]
+        {
+            get
+            {
+                if (tmpAssets.TryGetValue(textureCode, out var assetCode))
+                {
+                    return this.getOrCreateTexPos(assetCode);
+                }
+
+                Dictionary<string, CompositeTexture> dictionary;
+                dictionary = new Dictionary<string, CompositeTexture>();
+                foreach (var it in this.Block.Textures)
+                {
+                    dictionary.Add(it.Key, it.Value);
+                }
+                AssetLocation texturePath = (AssetLocation)null;
+                CompositeTexture compositeTexture;
+                if (dictionary.TryGetValue(textureCode, out compositeTexture))
+                    texturePath = compositeTexture.Baked.BakedName;
+                if ((object)texturePath == null && dictionary.TryGetValue("all", out compositeTexture))
+                    texturePath = compositeTexture.Baked.BakedName;
+
+                return this.getOrCreateTexPos(texturePath);
+            }
+        }
+        private TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
+        {
+            TextureAtlasPosition texPos = this.capi.BlockTextureAtlas[texturePath];
+            if (texPos == null)
+            {
+                IAsset asset = this.capi.Assets.TryGet(texturePath.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
+                if (asset != null)
+                {
+                    BitmapRef bitmap = asset.ToBitmap(this.capi);
+                    this.capi.BlockTextureAtlas.GetOrInsertTexture(texturePath, out int _, out texPos, () => asset.ToBitmap(this.Api as ICoreClientAPI));
+                }
+                else
+                {
+                    this.capi.World.Logger.Warning("For render in block " + this.Block.Code?.ToString() + ", item {0} defined texture {1}, not no such texture found.", "", (object)texturePath);
+                }
+            }
+            return texPos;
+        }
         public override void Initialize(ICoreAPI api)
         {
             base.Initialize(api);
             if (api.Side == EnumAppSide.Client)
             {
                 this.capi = (api as ICoreClientAPI);
+            }
+            tmpAssets["e1"] = new AssetLocation("cancrops:block/e1.png");
+            tmpAssets["e2"] = new AssetLocation("cancrops:block/e2.png");
+            tmpAssets["e3"] = new AssetLocation("cancrops:block/e3.png");
+            tmpAssets["e4"] = new AssetLocation("cancrops:block/e4.png");
+            tmpAssets["e5"] = new AssetLocation("cancrops:block/e5.png");
+
+            tmpAssets["s1"] = new AssetLocation("cancrops:block/s1.png");
+            tmpAssets["s2"] = new AssetLocation("cancrops:block/s2.png");
+            tmpAssets["s3"] = new AssetLocation("cancrops:block/s3.png");
+            tmpAssets["s4"] = new AssetLocation("cancrops:block/s4.png");
+            tmpAssets["s5"] = new AssetLocation("cancrops:block/s5.png");
+            if (capi != null)
+            {
+                this.ownMesh = GenRightMesh();
             }
         }
         public int GetCropStageWithout()
@@ -54,18 +111,113 @@ namespace cancrops.src.BE
             int.TryParse(block.LastCodePart(0), out stage);
             return stage;
         }
-        public void TryPropagateWeed(WeedStage weedStage, CANBECrossSticks crossSticks)
+        internal MeshData GenRightMesh()
         {
-            int resistance = 0;
-            if (this.Genome != null)
+            MeshData fullMesh = null;
+            ownMesh?.Dispose();
+            if (weedStage != WeedStage.NONE)
             {
-                resistance = this.Genome.Resistance.Dominant.Value;
+                
+                Shape weedShape = null;
+
+                if (weedStage == WeedStage.LOW)
+                {
+                    weedShape = Api.Assets.TryGet("cancrops:shapes/weed-1.json").ToObject<Shape>().Clone();
+                }
+                else if (weedStage == WeedStage.MEDIUM)
+                {
+                    weedShape = Api.Assets.TryGet("cancrops:shapes/weed-2.json").ToObject<Shape>().Clone();
+                }
+                else if (weedStage == WeedStage.HIGH)
+                {
+                    weedShape = Api.Assets.TryGet("cancrops:shapes/weed-3.json").ToObject<Shape>().Clone();
+                }
+
+                if (weedShape != null)
+                {
+                    (Api as ICoreClientAPI).Tesselator.TesselateShape("weed", weedShape, out MeshData weedMesh, this);
+                    fullMesh = weedMesh;
+                }
+
             }
-            cancrops.config.weedSpreadChancePerStage.TryGetValue((int)weedStage, out double weedChance);
-            if (cancrops.config.weedResistanceByStat * resistance < weedChance + rand.Next(0, 10) / 100)
+            if (fullMesh != null)
             {
-                this.weedStage += 1;
-                this.MarkDirty();
+                return fullMesh.Translate(new Vintagestory.API.MathTools.Vec3f(0, 0f, 0));
+            }
+            return fullMesh;
+        }
+        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
+        {
+            //if (base.OnTesselation(mesher, tessThreadTesselator))
+            {
+                //return true;
+            }
+
+            if (this.ownMesh == null)
+            {
+                return false;
+            }
+            mesher.AddMeshData(this.ownMesh, 1);
+            return false;
+        }
+        public void TryPropagateWeed(WeedStage weedStage, CANBECrossSticks crossSticks, int depth)
+        {
+            if (depth > cancrops.config.weedPropagationDepth + 2)
+            {
+                return;
+            }
+            if (this.weedStage == WeedStage.HIGH)
+            {
+                double rnd = rand.NextDouble() * 3.45;
+                int l = 0;
+
+                foreach (var weed in cancrops.config.weedBlockCodes)
+                {
+                    rnd -= weed.Value;
+                    if (rnd <= 0.0)
+                    {
+                        Block weedsBlock = this.Api.World.GetBlock(weed.Key);
+                        if (weedsBlock != null)
+                        {
+                            this.Api.World.BlockAccessor.SetBlock(weedsBlock.BlockId, this.Pos);
+                            break;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        l++;
+                    }
+                }
+            }
+            if (this.weedStage != WeedStage.HIGH)
+            {
+                int resistance = 0;
+                if (this.Genome != null)
+                {
+                    resistance = this.Genome.Resistance.Dominant.Value;
+                }
+                cancrops.config.weedSpreadChancePerStage.TryGetValue((int)weedStage, out double weedChance);
+                if (cancrops.config.weedResistanceByStat * resistance < weedChance + rand.Next(0, 10) / 10.0)
+                {
+                    this.weedStage += 1;
+                    this.MarkDirty(true);
+                    return;
+                }
+            }
+            BlockPos tmpPos;
+            foreach (var dir in BlockFacing.HORIZONTALS)
+            {
+                tmpPos = this.Pos.AddCopy(dir);
+                BlockEntity blockEntityFarmland = this.Api.World.BlockAccessor.GetBlockEntity(tmpPos);
+                if (cancrops.sapi.World.BlockAccessor.GetBlockEntity(this.Pos.AddCopy(dir)) is CANBECrop cbc)
+                {
+                    cbc.TryPropagateWeed(this.weedStage, null, depth + 1);
+                }
+                else if (cancrops.sapi.World.BlockAccessor.GetBlockEntity(this.Pos.AddCopy(dir)) is CANBECrossSticks cbcs)
+                {
+                    cbcs.TryPropagateWeed(this.weedStage, depth + 1);
+                }
             }
         }
         private bool SetPlantStage(int stage)
@@ -104,12 +256,16 @@ namespace cancrops.src.BE
             {
                 return false;
             }
+            ItemStack clipTool = clipSlot.Itemstack;
+            if (clipSlot.Empty || clipSlot.Itemstack.Item == null || clipSlot.Itemstack.Item.Tool != EnumTool.Shears)
+            {
+                return false;
+            }
             if (!SetPlantStage(agriPlant.ClipRollbackStage))
             {
                 return false;
             }
 
-            ItemStack clipTool = clipSlot.Itemstack;
             foreach (var drop in agriPlant.Clip_products.getRandom(rand))
             {
                 if (drop.Item is ItemPlantableSeed)
@@ -120,8 +276,8 @@ namespace cancrops.src.BE
                     foreach (Gene gene in Genome)
                     {
                         ITreeAttribute geneTree = new TreeAttribute();
-                        geneTree.SetInt("D", Math.Min(1 - rand.Next(mutativityStat) + rand.Next(fertilityStat) + gene.Dominant.Value, gene.Dominant.Value));
-                        geneTree.SetInt("R", Math.Min(1 - rand.Next(mutativityStat) + rand.Next(fertilityStat) + gene.Recessive.Value, gene.Recessive.Value));
+                        geneTree.SetInt("D", Math.Max(0, Math.Min((rand.Next(0, 2) * 2 -1) * rand.Next(mutativityStat) + rand.Next(fertilityStat) + gene.Dominant.Value, gene.Dominant.Value)));
+                        geneTree.SetInt("R", Math.Max(0, Math.Min((rand.Next(0, 2) * 2 - 1) * rand.Next(mutativityStat) + rand.Next(fertilityStat) + gene.Recessive.Value, gene.Recessive.Value)));
                         genomeTree[gene.StatName] = geneTree;
                     }
                     drop.Attributes[cancrops.config.genome_tag] = genomeTree;
@@ -131,6 +287,22 @@ namespace cancrops.src.BE
             clipTool.Collectible.DamageItem(this.Api.World, byPlayer.Entity, clipSlot, 1);
             return true;
         }
+        public void OnCultivating(ItemSlot slot, EntityAgent byEntity)
+        {
+            if(!slot.Empty && slot.Itemstack.Item is CANItemHandCultivator)
+            {
+                if (this.weedStage != WeedStage.NONE)
+                {
+                    this.weedStage = WeedStage.NONE;
+                    this.MarkDirty(true);
+                    if (byEntity is EntityPlayer player)
+                    {
+                        slot.Itemstack.Collectible.DamageItem(this.Api.World, player, slot, 1);
+                    }
+                }
+            }
+        }
+        
 
         ///////////////////////////////////////////////////////ATTRIBUTES//////////////////////////////////////////////////////////////////////////////////// 
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
@@ -149,15 +321,16 @@ namespace cancrops.src.BE
             WeedStage newWeedStage = (WeedStage)tree.GetInt("weedStage", 0);
             if (this.weedStage != newWeedStage)
             {
-                regenerateMesh = true;
+                //regenerateMesh = true;
                 this.weedStage = newWeedStage;
             }
 
             if (worldForResolving.Side == EnumAppSide.Client && this.capi != null)
             {
+                regenerateMesh = true;
                 if (regenerateMesh)
                 {
-                   // GenRightMesh();
+                    ownMesh = GenRightMesh();
                 }
             }
         }

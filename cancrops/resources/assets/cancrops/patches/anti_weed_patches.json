@@ -1,0 +1,13 @@
+[
+    {
+        "file": "cancrops:recipes/grid/anti-weed.json",
+        "op": "add",
+        "path": "/0/enabled",
+        "value": true,
+        "dependsOn": [
+            {
+                "modid": "em"
+            }
+        ]
+    }
+]

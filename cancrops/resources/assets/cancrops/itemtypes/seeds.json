@@ -5,7 +5,7 @@
 	"maxstacksize": 64,
 	"variantgroups": [
 		{
-			"code": "mushroom",
+			"code": "type",
 			"states": [ "fieldmushroom", "almondmushroom" ]
 		}
 	],
@@ -16,7 +16,7 @@
 		"cancrops": ["*"]
 	},
 	"texturesByType": {
-		"*": { "seed": { "base": "cancrops:items/resource/seeds/{mushroom}" } }
+		"*": { "seed": { "base": "cancrops:items/resource/seeds/{type}" } }
 	},
 	"materialDensity": 450,
 	"guiTransform": {

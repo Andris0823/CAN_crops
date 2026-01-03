@@ -8,7 +8,7 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"generic": "cancrops:block/generic"
+		"generic": "cancrops:block/s3"
 	},
 	"elements": [
 		{

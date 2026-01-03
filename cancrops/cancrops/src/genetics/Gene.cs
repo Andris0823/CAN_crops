@@ -12,16 +12,15 @@ namespace cancrops.src.genetics
         public Allele Recessive;
         public string StatName;
         public bool Hidden;
-        public Gene(string statName, Allele D, Allele R, bool Hidden) 
+        public Gene(string statName, Allele D, Allele R) 
         { 
             this.StatName = statName;
             this.Dominant = D;
             this.Recessive = R;
-            this.Hidden = Hidden;
         }
         public Gene Clone()
         {
-            return new Gene(this.StatName, new Allele(this.Dominant.Value), new Allele(this.Recessive.Value), this.Hidden);
+            return new Gene(this.StatName, new Allele(this.Dominant.Value), new Allele(this.Recessive.Value));
         }
 
     }

@@ -1,0 +1,20 @@
+﻿[
+    {
+        "ingredientPattern": "S,S",
+        "ingredients": {
+            "S": {
+                "type": "item",
+                "code": "game:seeds-*",
+                "name": "seed"
+            },
+        },
+            "width": 1,
+            "height": 2,
+            "output": {
+                "type": "item",
+                "code": "game:seeds-{seed}",
+                "quantity": 2
+            }
+    }
+    
+]

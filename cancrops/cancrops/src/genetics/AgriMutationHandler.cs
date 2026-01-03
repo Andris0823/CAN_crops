@@ -48,8 +48,12 @@ namespace cancrops.src.genetics
             {
                 return this.doClone(crossSticks, candidates[0], random);
             }
-            // More than one candidate passed, pick the two parents with the highest fertility stat:
-            return this.doCombine(crossSticks, candidates[0], candidates[1], random);
+            if (random.NextDouble() < 0.03)
+            {
+                // More than one candidate passed, pick the two parents with the highest fertility stat:
+                return this.doCombine(crossSticks, candidates[0], candidates[1], random);
+            }
+            return false;
         }
 
         protected bool doClone(CANBECrossSticks target, CANBECrop parent, Random random)
@@ -99,18 +103,17 @@ namespace cancrops.src.genetics
             //IAgriCrop crop, IAgriGene<IAgriPlant> gene, IAllele<IAgriPlant> first, IAllele<IAgriPlant> second,
             //                                        Tuple<IAgriGenome, IAgriGenome> parents, Random random)
             {
-
                 // Search for matching mutations
                 // get trigger results
                 // filter out any forbidden results
                 // order them randomly
                 // fetch the first
-                if (random.NextDouble() < 0.7)
+                /*if (random.NextDouble() < 0.7)
                 {
                     return random.Next() > 0.5
-                        ? first.Cloneable && random.NextDouble() < first.SpreadChance *7  ? first : null
-                        : (second.Cloneable && random.NextDouble() < second.SpreadChance *7) ? second : null;
-                }
+                        ? first.Cloneable && random.NextDouble() < first.SpreadChance ? first : null
+                        : (second.Cloneable && random.NextDouble() < second.SpreadChance) ? second : null;
+                }*/
                 
             
                 var l = cancrops.GetMutations().getMutationsFromParents((first, second))
@@ -178,7 +181,7 @@ namespace cancrops.src.genetics
                 // return new gene pair with or without mutations, based on mutativity stat
                 return new Gene(gene.StatName,
                         this.rollAndExecuteMutation(gene, parents.Item1.Mutativity.Dominant.Value , random),
-                        this.rollAndExecuteMutation(gene, parents.Item2.Mutativity.Recessive.Value, random), gene.Hidden
+                        this.rollAndExecuteMutation(gene, parents.Item2.Mutativity.Recessive.Value, random)
                 );
             }
 
