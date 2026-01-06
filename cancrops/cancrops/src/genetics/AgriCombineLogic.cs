@@ -4,13 +4,25 @@ using System.Collections.Generic;
 
 namespace cancrops.src.genetics
 {
+    /// <summary>
+    /// Handles the genetic crossbreeding logic for combining two parent genomes.
+    /// Uses Mendelian genetics principles with mutation possibilities.
+    /// </summary>
     public class AgriCombineLogic
     {
+        /// <summary>
+        /// Combines two parent genomes to create an offspring genome.
+        /// For each gene, randomly selects alleles from both parents and applies potential mutations.
+        /// </summary>
+        /// <param name="crop">The cross sticks block entity where breeding occurs</param>
+        /// <param name="parents">Tuple containing both parent genomes</param>
+        /// <param name="random">Random number generator</param>
+        /// <returns>A new genome representing the offspring</returns>
         public Genome combine(CANBECrossSticks crop, Tuple<Genome, Genome> parents, Random random)
         {
             List<Gene> geneList = new List<Gene>();
             var firstGenome = parents.Item1.GetEnumerator();
-            var secondGenome = parents.Item1.GetEnumerator();
+            var secondGenome = parents.Item2.GetEnumerator();
             firstGenome.MoveNext();
             secondGenome.MoveNext();
             //really why tuple used even deeper
@@ -31,6 +43,10 @@ namespace cancrops.src.genetics
             }
             return new Genome(geneList);
         }
+        /// <summary>
+        /// Creates a new gene by combining genetic material from both parents.
+        /// Randomly selects alleles from parent genes and applies potential mutations.
+        /// </summary>
         protected Gene mutateGene(Gene gene, Tuple<Genome, Genome> parents, Random rand)
         {
             return
@@ -38,9 +54,22 @@ namespace cancrops.src.genetics
                             this.pickRandomAllele(parents.Item1.GetGeneByName(gene.StatName), parents.Item1.Mutativity.Dominant.Value, rand),
                             this.pickRandomAllele(parents.Item2.GetGeneByName(gene.StatName), parents.Item2.Mutativity.Dominant.Value, rand));
         }
+        /// <summary>
+        /// Selects a random allele from a gene pair with potential for mutation.
+        /// Mutation probability is influenced by the mutativity stat:
+        /// - Higher mutativity = higher chance of positive mutations
+        /// - Mutativity of 1: 25% positive / 50% no change / 25% negative
+        /// - Mutativity of 10: 100% positive mutation chance
+        /// </summary>
+        /// <param name="pair">The gene to select an allele from</param>
+        /// <param name="statValue">The mutativity stat value (0-10)</param>
+        /// <param name="random">Random number generator</param>
+        /// <returns>A potentially mutated allele</returns>
         protected Allele pickRandomAllele(Gene pair, int statValue, Random random)
         {
             var allele = (random.Next(6) > 0) ? new Allele(pair.Dominant.Value): new Allele(pair.Recessive.Value);
+            
+            // Mutation logic: Mutativity stat affects probability and direction of mutations
             // Mutativity stat of 1 results in 25/50/25 probability of positive/no/negative mutation
             // Mutativity stat of 10 results in 100/0/0 probability of positive/no/negative mutation
             int max = cancrops.config.maxMutativity;
@@ -52,7 +81,7 @@ namespace cancrops.src.genetics
                 {
                     return new Allele(1);
                 }
-                else if(newValue > 10) //TODO add dict with max values
+                else if(newValue > 10) // Cap at maximum value (should use config max)
                 {
                     return new Allele(10);
                 }
