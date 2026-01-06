@@ -7,25 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Optional mod compatibility DLLs - only include if they exist -->
-    <Reference Include="FarmlandDropsSoil" Condition="Exists('..\..\..\..\..\libs\FarmlandDropsSoil.dll')">
+    <Reference Include="FarmlandDropsSoil">
       <HintPath>..\..\..\..\..\libs\FarmlandDropsSoil.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="primitivesurvival" Condition="Exists('..\..\..\..\..\libs\primitivesurvival.dll')">
+    <Reference Include="primitivesurvival">
       <HintPath>..\..\..\..\..\libs\primitivesurvival.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="xlib" Condition="Exists('..\..\..\..\..\libs\xlib.dll')">
-      <HintPath>..\..\..\..\..\libs\xlib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="xskills" Condition="Exists('..\..\..\..\..\libs\xskills.dll')">
-      <HintPath>..\..\..\..\..\libs\xskills.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    
-    <!-- Required DLLs -->
     <Reference Include="VintagestoryAPI">
       <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
       <Private>false</Private>
@@ -62,13 +51,14 @@
       <HintPath>$(VINTAGE_STORY)/Lib/cairo-sharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-  </ItemGroup>
-  
-  <!-- Conditionally exclude compatibility files if DLLs don't exist -->
-  <ItemGroup>
-    <Compile Remove="src\compat\farmlanddropssoil\**\*.cs" Condition="!Exists('..\..\..\..\..\libs\FarmlandDropsSoil.dll')" />
-    <Compile Remove="src\compat\primitivesurvival\**\*.cs" Condition="!Exists('..\..\..\..\..\libs\primitivesurvival.dll')" />
-    <Compile Remove="src\compat\xskills\**\*.cs" Condition="!Exists('..\..\..\..\..\libs\xskills.dll') OR !Exists('..\..\..\..\..\libs\xlib.dll')" />
+    <Reference Include="xlib">
+      <HintPath>..\..\..\..\..\libs\xlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="xskills">
+      <HintPath>..\..\..\..\..\libs\xskills.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
 
 <ItemGroup>
