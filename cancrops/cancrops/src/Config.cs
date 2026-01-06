@@ -57,7 +57,15 @@ namespace cancrops.src
         };
         public bool weedSpreadingActivated = true;
         public double weedAppearanceChance = 0.15;
-        public Dictionary<string, bool> hidden_genes = new();
+        public Dictionary<string, bool> hidden_genes = new Dictionary<string, bool>
+        {
+            {"gain", false},
+            {"growth", false},
+            {"strength", true},
+            {"resistance", false},
+            {"fertility", true},
+            {"mutativity", true}
+        };
         public string seedMergeStrategy = "tolower";
         public HashSet<string> seedMergeStrategies = ["tolower", "mean"];
         public Dictionary<string, double> weedBlockCodes = new() {

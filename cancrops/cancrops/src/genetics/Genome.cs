@@ -1,29 +1,33 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Datastructures;
 
 namespace cancrops.src.genetics
 {
     public class Genome: IEnumerable<Gene>
     {
-        public static Dictionary<string, bool> genes = new Dictionary<string, bool>{ 
-            //grow speed
-                {"gain", cancrops.config.hiddenGain}, 
-            //amount of drop
-                {"growth", cancrops.config.hiddenGrowth},
-            //resist against requirements
-                {"strength", cancrops.config.hiddenStrength},
-            //against weeds
-                {"resistance", cancrops.config.hiddenResistance},  
-            //chance to be selected from parents
-                {"fertility", cancrops.config.hiddenFertility},
-            //
-                {"mutativity", cancrops.config.hiddenMutativity}
-        };        
+        // Lazy initialization to avoid static initialization order issues
+        private static Dictionary<string, bool> _genes;
+        public static Dictionary<string, bool> genes
+        {
+            get
+            {
+                if (_genes == null)
+                {
+                    _genes = new Dictionary<string, bool>
+                    {
+                        {"gain", cancrops.config?.hiddenGain ?? false},
+                        {"growth", cancrops.config?.hiddenGrowth ?? false},
+                        {"strength", cancrops.config?.hiddenStrength ?? true},
+                        {"resistance", cancrops.config?.hiddenResistance ?? false},
+                        {"fertility", cancrops.config?.hiddenFertility ?? true},
+                        {"mutativity", cancrops.config?.hiddenMutativity ?? true}
+                    };
+                }
+                return _genes;
+            }
+        }        
         public Gene Gain { get; set; }
         public Gene Growth { get; set; }
         public Gene Strength { get; set; }

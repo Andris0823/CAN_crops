@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Vintagestory.API.Common;
-using Vintagestory.API.Config;
+using cancrops.src.templates;
 
 namespace cancrops.src.implementations
 {

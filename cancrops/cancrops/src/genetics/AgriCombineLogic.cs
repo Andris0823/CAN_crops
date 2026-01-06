@@ -10,7 +10,7 @@ namespace cancrops.src.genetics
         {
             List<Gene> geneList = new List<Gene>();
             var firstGenome = parents.Item1.GetEnumerator();
-            var secondGenome = parents.Item1.GetEnumerator();
+            var secondGenome = parents.Item2.GetEnumerator();
             firstGenome.MoveNext();
             secondGenome.MoveNext();
             //really why tuple used even deeper
