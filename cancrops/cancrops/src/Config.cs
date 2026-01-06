@@ -14,7 +14,7 @@ namespace cancrops.src
         public bool hiddenGrowth = false;
         public int minStrength = 0;
         public int maxStrength = 10;
-        public bool hiddenStrength = true;
+        public bool hiddenStrength = false;
         public int minResistance = 0;
         public int maxResistance = 10;
         public bool hiddenResistance = false;
@@ -61,7 +61,7 @@ namespace cancrops.src
         {
             {"gain", false},
             {"growth", false},
-            {"strength", true},
+            {"strength", false},
             {"resistance", false},
             {"fertility", true},
             {"mutativity", true}

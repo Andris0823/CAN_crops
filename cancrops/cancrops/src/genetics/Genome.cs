@@ -5,9 +5,20 @@ using Vintagestory.API.Datastructures;
 
 namespace cancrops.src.genetics
 {
+    /// <summary>
+    /// Represents a complete set of genetic information for a crop plant.
+    /// Contains 6 genes that control different aspects of the crop's behavior:
+    /// - Gain: Amount of drops when harvested
+    /// - Growth: Speed of growth (reduces time between stages)
+    /// - Strength: Affects perish time of harvested items
+    /// - Resistance: Temperature tolerance and weed resistance
+    /// - Fertility: Probability of being selected as a parent during breeding
+    /// - Mutativity: Chance of genetic mutations during breeding
+    /// </summary>
     public class Genome: IEnumerable<Gene>
     {
         // Lazy initialization to avoid static initialization order issues
+        // This dictionary tracks which genes should be hidden in the UI
         private static Dictionary<string, bool> _genes;
         public static Dictionary<string, bool> genes
         {
@@ -19,7 +30,7 @@ namespace cancrops.src.genetics
                     {
                         {"gain", cancrops.config?.hiddenGain ?? false},
                         {"growth", cancrops.config?.hiddenGrowth ?? false},
-                        {"strength", cancrops.config?.hiddenStrength ?? true},
+                        {"strength", cancrops.config?.hiddenStrength ?? false},
                         {"resistance", cancrops.config?.hiddenResistance ?? false},
                         {"fertility", cancrops.config?.hiddenFertility ?? true},
                         {"mutativity", cancrops.config?.hiddenMutativity ?? true}
