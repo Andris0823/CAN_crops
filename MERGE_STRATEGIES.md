@@ -1,65 +1,78 @@
 # Seed Merge Strategies
 
-This document explains how the seed merge strategy configuration affects crop breeding in the CAN Crops mod.
+This document explains how the seed merge strategy configuration affects **crafting grid seed merging** in the CAN Crops mod.
+
+## Important Note
+
+The `seedMergeStrategy` configuration controls **crafting grid seed combining**, not the breeding system with selection sticks. When you craft multiple seeds together in the grid, this setting determines how their stats are merged.
+
+**Breeding vs Crafting**:
+- **Breeding** (selection sticks): Uses genetic recombination logic in `AgriCombineLogic.cs` with Mendelian inheritance
+- **Crafting** (grid merging): Uses merge strategies in `CommonUtils.MergeGenomes()` as configured
 
 ## Overview
 
-When breeding two parent crops, their genetic stats must be combined to create the offspring. The `seedMergeStrategy` configuration option controls how this combination works.
+When combining multiple seeds in a crafting grid, their genetic stats must be merged. The `seedMergeStrategy` configuration option controls how this combination works.
 
 ## Available Strategies
 
 ### 1. "tolower" Strategy (Default)
 
-**Behavior**: The child inherits the **lower value** from the two parents for each stat.
+**Behavior**: The result inherits the **lowest value** from all input seeds for each stat (both dominant and recessive alleles).
 
 **Example**:
 ```
-Parent 1: Gain=8, Growth=6, Strength=7
-Parent 2: Gain=5, Growth=9, Strength=4
+Seed 1: Gain=8, Growth=6, Strength=7
+Seed 2: Gain=5, Growth=9, Strength=4
 
-Offspring (before mutation):
+Result:
   Gain = min(8, 5) = 5
   Growth = min(6, 9) = 6
   Strength = min(7, 4) = 4
 ```
 
-**Use Case**: This strategy makes breeding more challenging and realistic. Players must carefully select parents to avoid losing good stats. It prevents "runaway" breeding where stats only go up.
+**Note**: This was fixed to correctly compare recessive values instead of incorrectly using dominant values in the recessive comparison.
+
+**Use Case**: This strategy makes seed management more challenging. Players must be careful when combining seeds to avoid losing good stats.
 
 **Pros**:
-- More strategic breeding decisions required
-- Harder to achieve perfect crops (end-game goal)
-- Encourages maintaining diverse crop populations
+- Preserves worst-case values
+- Prevents stat inflation from careless merging
+- Encourages careful seed organization
 
 **Cons**:
-- Can be frustrating if unlucky with inheritance
-- Takes longer to improve crop lines
+- Can lose good stats when combining seeds
+- Less forgiving for inventory management
+- May discourage seed consolidation
 
 ### 2. "mean" Strategy
 
-**Behavior**: The child inherits the **average value** from the two parents for each stat (rounded).
+**Behavior**: The child inherits the **average value** from all parent seeds for each stat, rounded using `MidpointRounding.AwayFromZero` (0.5 rounds away from zero).
 
 **Example**:
 ```
-Parent 1: Gain=8, Growth=6, Strength=7
-Parent 2: Gain=5, Growth=9, Strength=4
+Seed 1: Gain=8, Growth=6, Strength=7
+Seed 2: Gain=5, Growth=9, Strength=4
 
-Offspring (before mutation):
-  Gain = round((8 + 5) / 2) = 7
-  Growth = round((6 + 9) / 2) = 8
-  Strength = round((7 + 4) / 2) = 6
+Result:
+  Gain = round((8 + 5) / 2) = 7 (6.5 rounds to 7)
+  Growth = round((6 + 9) / 2) = 8 (7.5 rounds to 8)
+  Strength = round((7 + 4) / 2) = 6 (5.5 rounds to 6)
 ```
 
-**Use Case**: This strategy is more forgiving and allows gradual improvement through breeding. Good for casual play or if you want faster breeding progress.
+**Note**: The rounding mode was fixed to use `AwayFromZero` instead of the default `ToEven` for more intuitive behavior.
+
+**Use Case**: This strategy is more forgiving when combining seeds. Good for consolidating seed inventory.
 
 **Pros**:
-- Gradual stat improvement possible
-- Less punishing for poor parent selection
-- Faster path to high-stat crops
+- Averages out stats fairly
+- More forgiving for seed consolidation
+- Can improve low-stat seeds by mixing with better ones
 
 **Cons**:
-- May make breeding too easy
-- Reduces strategic depth
-- Can lead to stat homogenization
+- Can reduce high stats when mixed with low-stat seeds
+- May lead to mediocre stat distribution
+- Less control over final values
 
 ## How It's Configured
 
@@ -81,75 +94,74 @@ In your `cancrops.json` config file:
 3. Change `"seedMergeStrategy"` to `"mean"` or `"tolower"`
 4. Restart the game
 
-## Interaction with Mutations
+## Interaction with Breeding
 
-**Important**: The merge strategy is applied BEFORE mutations occur.
+**Important**: This merge strategy is for **crafting grid seed combining only**. It does NOT affect breeding with selection sticks.
 
-**Complete breeding flow**:
-1. Select two parent crops based on fertility stat
-2. Apply merge strategy to combine parent stats → base offspring stats
-3. For each stat, check if mutation occurs (based on mutativity)
-4. If mutation: Add or subtract 1 from the stat value
-5. Final offspring stats are used for the new crop
+**Crafting Grid Merging (uses merge strategy)**:
+1. Place 2+ seeds in crafting grid
+2. Apply configured merge strategy (tolower or mean)
+3. Result seed has merged stats based on strategy
+4. No mutations occur during crafting merge
 
-**Example with mutations**:
-```
-Parent 1: Gain=8 (Mutativity=7)
-Parent 2: Gain=5 (Mutativity=7)
-
-Step 1 (tolower strategy): Gain = 5
-Step 2 (mutation check): Roll for mutation
-Step 3 (mutation succeeds): Gain = 5 + 1 = 6
-
-Final offspring: Gain=6
-```
+**Breeding with Selection Sticks (different system)**:
+1. Place selection sticks on farmland
+2. Surround with parent crops
+3. Uses genetic recombination in `AgriCombineLogic.cs`
+4. Random allele selection from each parent
+5. Mutations based on mutativity stat
+6. Can result in different crop species (mutations)
 
 ## Which Strategy Should You Use?
 
 ### Choose "tolower" if you want:
-- Traditional challenging breeding mechanics (like AgriCraft)
-- Long-term breeding project gameplay
-- Strategic importance of parent selection
-- Risk/reward in crossbreeding experiments
+- Challenging seed management
+- Preserve only the best stats when combining seeds
+- Prevent accidental stat dilution
+- More careful seed organization needed
 
 ### Choose "mean" if you want:
-- More forgiving breeding system
-- Faster crop improvement
-- Simplified breeding for casual gameplay
+- Average out stats when combining seeds
+- More forgiving seed consolidation
+- Gradual stat normalization across seed stock
 - Focus on other game aspects while breeding on the side
 
 ## Technical Implementation
 
-The merge strategy is currently defined in the config but the actual implementation is handled by the genetics system:
+## Technical Implementation
+
+The merge strategy is implemented in `CommonUtils.MergeGenomes()` and triggered during crafting:
 
 **Relevant files**:
 - `Config.cs`: Defines the configuration option
-- `AgriCombineLogic.cs`: Implements the breeding logic
-- `AgriMutationHandler.cs`: Orchestrates the overall breeding process
+- `CommonUtils.cs`: `MergeGenomesInnerMean()` implements both strategies
+- `harmPatch.cs`: `Prefix_ItemPlantableSeed_OnCreatedByCrafting()` hooks into crafting
 
-**Note**: The current implementation in the codebase uses genetic recombination logic with random allele selection from each parent, which is more sophisticated than simple "tolower" or "mean". The config option exists but may need integration work to fully control the breeding behavior.
+**Recent Fixes**:
+- Fixed "mean" strategy to use `MidpointRounding.AwayFromZero` instead of default `ToEven`
+- Fixed "tolower" strategy typo where dominant values were compared in recessive value selection
 
 ## Future Enhancements
 
-Potential additional merge strategies:
-- **"tohigher"**: Take the higher value (easier breeding)
-- **"random"**: Randomly pick parent 1 or parent 2's value
-- **"weighted"**: Weight by fertility stat (higher fertility = more likely to pass stats)
-- **"genetic"**: Full Mendelian genetics with dominant/recessive rules
+Potential additional merge strategies for crafting:
+- **"tohigher"**: Take the higher value (preserve best stats)
+- **"random"**: Randomly pick from input seeds
+- **"weighted"**: Weight by fertility stat
+- **"first"**: Use first seed's stats (ignore others)
 
 ## Troubleshooting
 
-**Q: I changed the strategy but breeding still seems the same?**
-A: Make sure to restart the game after changing config. The setting is loaded at startup.
+**Q: I changed the strategy but my breeding results haven't changed?**
+A: The merge strategy only affects **crafting grid seed merging**, not breeding with selection sticks. Breeding uses a separate genetic system.
 
 **Q: Can I change the strategy mid-game?**
-A: Yes, but it only affects future breeding. Existing crops keep their stats.
+A: Yes, but it only affects future crafting. Already crafted seeds keep their stats.
 
-**Q: Does this affect mutations?**
-A: No, mutations are applied after the merge strategy. They're controlled separately by the mutativity stat.
+**Q: Does this affect selection stick breeding?**
+A: No, selection sticks use `AgriCombineLogic.cs` with genetic recombination, not merge strategies.
 
 **Q: What happens with invalid strategy names?**
-A: The mod will fall back to "tolower" (the default) and log a warning.
+A: The merge will fail and return false, likely preventing the craft.
 
 ## See Also
 
