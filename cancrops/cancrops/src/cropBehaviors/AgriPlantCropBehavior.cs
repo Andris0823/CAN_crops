@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using cancrops.src.BE;
 using cancrops.src.genetics;
 using cancrops.src.implementations;
 using cancrops.src.utility;
-using PrimitiveSurvival.ModSystem;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace cancrops.src.cropBehaviors
 {
