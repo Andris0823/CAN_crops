@@ -128,8 +128,6 @@ In your `cancrops.json` config file:
 
 ## Technical Implementation
 
-## Technical Implementation
-
 The merge strategy is implemented in `CommonUtils.MergeGenomes()` and triggered during crafting:
 
 **Relevant files**:
