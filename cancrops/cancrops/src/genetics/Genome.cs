@@ -5,16 +5,14 @@ using Vintagestory.API.Datastructures;
 
 namespace cancrops.src.genetics
 {
-    /// <summary>
-    /// Represents a complete set of genetic information for a crop plant.
-    /// Contains 6 genes that control different aspects of the crop's behavior:
-    /// - Gain: Amount of drops when harvested
-    /// - Growth: Speed of growth (reduces time between stages)
-    /// - Strength: Affects perish time of harvested items
-    /// - Resistance: Temperature tolerance and weed resistance
-    /// - Fertility: Probability of being selected as a parent during breeding
-    /// - Mutativity: Chance of genetic mutations during breeding
-    /// </summary>
+    // Represents a complete set of genetic information for a crop plant.
+    // Contains 6 genes that control different aspects of the crop's behavior:
+    // - Gain: Amount of drops when harvested
+    // - Growth: Speed of growth (reduces time between stages)
+    // - Strength: Affects perish time of harvested items
+    // - Resistance: Temperature tolerance and weed resistance
+    // - Fertility: Probability of being selected as a parent during breeding
+    // - Mutativity: Chance of genetic mutations during breeding
     public class Genome: IEnumerable<Gene>
     {
         // Lazy initialization to avoid static initialization order issues

@@ -6,31 +6,21 @@ using System.Threading.Tasks;
 
 namespace cancrops.src.genetics
 {
-    /// <summary>
-    /// Represents a single genetic trait with dominant and recessive alleles.
-    /// In Mendelian genetics, the dominant allele determines the expressed trait (phenotype).
-    /// Each gene corresponds to a crop statistic (gain, growth, strength, resistance, fertility, mutativity).
-    /// </summary>
+    // Represents a single genetic trait with dominant and recessive alleles.
+    // In Mendelian genetics, the dominant allele determines the expressed trait (phenotype).
+    // Each gene corresponds to a crop statistic (gain, growth, strength, resistance, fertility, mutativity).
     public class Gene
     {
-        /// <summary>
-        /// The dominant allele - this value is used for the expressed trait
-        /// </summary>
+        // The dominant allele - this value is used for the expressed trait
         public Allele Dominant;
-        
-        /// <summary>
-        /// The recessive allele - stored but only expressed if no dominant allele present
-        /// </summary>
+		
+        // The recessive allele - stored but only expressed if no dominant allele present
         public Allele Recessive;
-        
-        /// <summary>
-        /// Name of the stat this gene controls (e.g., "gain", "growth", "strength")
-        /// </summary>
+		
+        // Name of the stat this gene controls (e.g., "gain", "growth", "strength")
         public string StatName;
-        
-        /// <summary>
-        /// Whether this gene should be hidden in the UI
-        /// </summary>
+		
+        // Whether this gene should be hidden in the UI
         public bool Hidden;
         
         public Gene(string statName, Allele D, Allele R) 
@@ -40,9 +30,7 @@ namespace cancrops.src.genetics
             this.Recessive = R;
         }
         
-        /// <summary>
-        /// Creates a deep copy of this gene
-        /// </summary>
+        // Creates a deep copy of this gene
         public Gene Clone()
         {
             return new Gene(this.StatName, new Allele(this.Dominant.Value), new Allele(this.Recessive.Value));
