@@ -123,7 +123,12 @@ namespace cancrops.src.implementations
 
         public void getHarvestProducts(List<ItemStack> products, Random rand)
         {
-            products = this.Products.getRandom(rand);
+            var randomProducts = this.Products.getRandom(rand);
+            products.Clear();
+            if (randomProducts != null)
+            {
+                products.AddRange(randomProducts);
+            }
         }
 
         public int CompareTo(object obj)
