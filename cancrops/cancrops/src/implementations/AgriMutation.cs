@@ -51,14 +51,7 @@ namespace cancrops.src.implementations
         public override int GetHashCode()
         {
             int hash = 13;
-            if(this.Parent1.CompareTo(this.Parent2) > 0)
-            {
-                hash = this.Parent1.GetHashCode() + this.Parent2.GetHashCode();
-            }
-            else
-            {
-                hash = this.Parent2.GetHashCode() + this.Parent1.GetHashCode();
-            }
+            hash = this.Parent1.GetHashCode() + this.Parent2.GetHashCode();
             hash = (hash * 7) + this.Child.GetHashCode();
             return hash;
         }
